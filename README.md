@@ -15,32 +15,50 @@ char *desc;
     printf("Couldn't unset description. Lazy example writer is lazy,
 and instructs reader to imagine using libifconfig_errstate to create useful
 error messages.");
+if (desc !== NULL)
+  free(desc);
 ```
 
 ```
 // Set interface MTU
 int mtu = 9000;
 char *netif = "em0";
-if (libifconfig_set_mtu(netif, mtu) == 0) 
-  printf("Successfully changed MTU of %s to %d", netif, mtu);
+int retcode = 0;
+if (libifconfig_set_mtu(netif, mtu) == 0) {
+    printf("Successfully changed MTU of %s to %d", netif, mtu);
+    free(netif);
+    return 0;
+  }
 else {
   switch (libifconfig_errstate.errtype)  {
   case SOCKET:
-    err(1, "couldn't create socket. This shouldn't happen.\n");
+    warnx("couldn't create socket. This shouldn't happen.\n");
     break;
   case IOCTL:
     if (libifconfig_errstate.ioctl_request == SIOCSIFMTU) 
-      err(1, "Failed to set MTU (SIOCSIFMTU)\n");
+      warnx("Failed to set MTU (SIOCSIFMTU)\n");
     else
-      err(1, "Failed to set MTU due to error in unexpected ioctl() call %lu. Error code: %i.\n", 
+      warnx("Failed to set MTU due to error in unexpected ioctl() call %lu. Error code: %i.\n", 
         libifconfig_errstate.ioctl_request, libifconfig_errstate.ioctl_err);
     break;
   default:
-    err(1, "Should basically never end up here in this example.\n");
+    warnx("Should basically never end up here in this example.\n");
     break;
   }
+  free(netif);
+  return -1;
 }
 ```
+
+```
+/*  
+ * Remember to tell libifconfig to free its resources when appropriate.
+ * This is, at a minimum, before program exit.
+ * Currently, this clears & frees the socket cache, and closes the sockets thereof.
+ */
+libifconfig_free_resources();
+```
+
 ## Mailing List Threads
 [2016-03-04: libifconfig: A C Api for ifconfig](https://lists.freebsd.org/pipermail/freebsd-net/2016-March/044837.html)
 [2016-04-09: libifconfig: Initial code available, looking for feedback](https://lists.freebsd.org/pipermail/freebsd-net/2016-April/045022.html)
