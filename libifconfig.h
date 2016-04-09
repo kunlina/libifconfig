@@ -31,16 +31,17 @@
 #pragma once
 
 typedef enum {OTHER, ERRNO, IOCTL, SOCKET} libifconfig_errtype;
+typedef enum {NONE, CADDRT} libifconfig_ioctlwrap_castmode;
 
 // Contains libifconfig error state
 struct errstate {
     /// <summary>Type of error.</summary>
     libifconfig_errtype errtype;
     /// <summary>
-    /// The error occured in this ioctl() call.
+    /// The error occured in this ioctl() request.
     /// Populated if errtype = IOCTL
     /// </summary>
-    int ioctl_call;
+    int ioctl_request;
     /// <summary>
     /// Error code returned by the ioctl() call.
     /// Populated if errtype = IOCTL

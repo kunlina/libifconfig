@@ -78,16 +78,30 @@ void libifconfig_free_resources(void) {
         libifconfig_socketcache_free_resources();
 }
 
-/// <summary> function to wrap ioctl() and automatically populate libifconfig_errstate when appropriate. </summary>
-inline static int libifconfig_ioctlwrap(int s, int call) {
-    int rcode = ioctl(s, call, &ifr);
-    if (rcode == 0)
-        return 0;
-    libifconfig_errstate.errtype = IOCTL;
-    libifconfig_errstate.ioctl_call = call;
-    libifconfig_errstate.ioctl_err = rcode;
+
+/// <summary> function used by other wrapper functions to populate _errstate when appropriate. </summary>
+static int libifconfig_ioctlwrap_ret(unsigned long request, int rcode) {
+    if (rcode != 0) {    
+        libifconfig_errstate.errtype = IOCTL;
+        libifconfig_errstate.ioctl_request = request;
+        libifconfig_errstate.ioctl_err = rcode;
+    }
     return rcode;
 }
+
+/// <summary> function to wrap ioctl() and automatically populate libifconfig_errstate when appropriate. </summary>
+static int libifconfig_ioctlwrap(int s, unsigned long request, struct ifreq *ifr) {
+    int rcode = ioctl(s, request, ifr);
+    return libifconfig_ioctlwrap_ret(request, rcode);    
+}
+
+/// <summary> function to wrap ioctl(), casting ifr to caddr_t, and automatically populate libifconfig_errstate when appropriate. </summary>
+static int libifconfig_ioctlwrap_caddr(int s, unsigned long request, struct ifreq *ifr) {
+    int rcode = ioctl(s, request, (caddr_t)ifr);
+    return libifconfig_ioctlwrap_ret(request, rcode);
+}
+
+
 
 int libifconfig_get_description(const char *name, char **description) {
         struct ifreq ifr;
@@ -151,12 +165,9 @@ int libifconfig_set_description(const char *name, const char *newdescription) {
             return -1;
         }
         
-        libifconfig_errstate.ioctl_err = ioctl(s, SIOCSIFDESCR, (caddr_t)&ifr);
-        if (libifconfig_errstate.ioctl_err < 0){
+        if (libifconfig_ioctlwrap_caddr(s, SIOCSIFDESCR, &ifr) < 0) {
             if (ifr.ifr_buffer.buffer != NULL)
                 free(ifr.ifr_buffer.buffer);
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCSIFDESCR;
             return -1;
         }
         if (ifr.ifr_buffer.buffer != NULL)
@@ -175,9 +186,7 @@ int libifconfig_unset_description(const char *name) {
         ifr.ifr_buffer.length = 0;
         ifr.ifr_buffer.buffer = NULL;
         
-        if (ioctl(s, SIOCSIFDESCR, (caddr_t)&ifr) < 0) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCSIFDESCR;
+        if (libifconfig_ioctlwrap_caddr(s, SIOCSIFDESCR, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -201,10 +210,8 @@ int libifconfig_set_name(const char *name, const char *newname) {
         strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
         ifr.ifr_data = tmpname;
         
-        if (ioctl(s, SIOCSIFNAME, (caddr_t)&ifr) < 0) {
+        if (libifconfig_ioctlwrap_caddr(s, SIOCSIFNAME, &ifr) < 0) {
             free(tmpname);
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCSIFNAME;
             return -1;
         }
         free(tmpname);
@@ -220,9 +227,7 @@ int libifconfig_set_mtu(const char *name, const int mtu){
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
         ifr.ifr_mtu = mtu;
-        if (ioctl(s, SIOCSIFMTU, (caddr_t)&ifr) < 0) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCSIFMTU;
+        if (libifconfig_ioctlwrap_caddr(s, SIOCSIFMTU, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -236,9 +241,7 @@ int libifconfig_get_mtu(const char *name, int *mtu) {
             return -1;
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
-        if (ioctl(s, SIOCGIFMTU, &ifr) == -1) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCGIFMTU;
+        if (libifconfig_ioctlwrap(s, SIOCGIFMTU, &ifr) == -1) {
             return -1;
         }
         *mtu = ifr.ifr_mtu;
@@ -254,9 +257,7 @@ int libifconfig_set_metric(const char *name, const int mtu){
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
         ifr.ifr_mtu = mtu;
-        if (ioctl(s, SIOCSIFMETRIC, (caddr_t)&ifr) < 0) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCSIFMETRIC;
+        if (libifconfig_ioctlwrap_caddr(s, SIOCSIFMETRIC, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -270,9 +271,7 @@ int libifconfig_get_metric(const char *name, int *metric) {
             return -1;
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
-        if (ioctl(s, SIOCGIFMETRIC, &ifr) == -1) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCGIFMETRIC;
+        if (libifconfig_ioctlwrap(s, SIOCGIFMETRIC, &ifr) == -1) {
             return -1;
         }
         *metric = ifr.ifr_metric;
@@ -293,9 +292,7 @@ int libifconfig_set_capability(const char *name, const int capability) {
         value = capability;
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
         
-        if (ioctl(s, SIOCGIFCAP, (caddr_t)&ifr) < 0) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCGIFCAP;
+        if (libifconfig_ioctlwrap_caddr(s, SIOCGIFCAP, &ifr) < 0) {
             return -1;
         }
         
@@ -307,9 +304,7 @@ int libifconfig_set_capability(const char *name, const int capability) {
             flags |= value;
         flags &= ifr.ifr_reqcap;
         ifr.ifr_reqcap = flags;
-        if (ioctl(s, SIOCSIFCAP, (caddr_t)&ifr) < 0) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCSIFCAP;
+        if (libifconfig_ioctlwrap_caddr(s, SIOCSIFCAP, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -325,9 +320,7 @@ int libifconfig_get_capability(const char *name, int *capability) {
 
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
         
-        if (ioctl(s, SIOCGIFCAP, (caddr_t)&ifr) < 0) {
-            libifconfig_errstate.errtype = IOCTL;
-            libifconfig_errstate.ioctl_call = SIOCGIFCAP;
+        if (libifconfig_ioctlwrap_caddr(s, SIOCGIFCAP, &ifr) < 0) {
             return -1;
         }
         *capability = ifr.ifr_curcap;
