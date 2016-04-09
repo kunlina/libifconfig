@@ -1,0 +1,15 @@
+# $FreeBSD$
+
+LIB=    ifconfig
+SHLIBDIR?= /lib
+SHLIB_MAJOR= 1
+SRCS=   libifconfig.c libifconfig_socketcache.c
+
+INCSDIR=	${INCLUDEDIR}/libifconfig
+INCS=   libifconfig.h libifconfig_socketcache.h
+
+#MAN=    libifconfig.3
+
+CFLAGS+=-I${.CURDIR}
+
+.include <bsd.lib.mk>
