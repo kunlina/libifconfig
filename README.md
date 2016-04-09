@@ -15,7 +15,8 @@ char *desc;
     printf("Couldn't unset description. Lazy example writer is lazy,
 and instructs reader to imagine using libifconfig_errstate to create useful
 error messages.");
-if (desc !== NULL)
+
+if (desc != NULL)
   free(desc);
 ```
 
