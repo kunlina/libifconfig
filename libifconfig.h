@@ -48,13 +48,18 @@ struct errstate {
     int ioctl_err;
 };
 
+struct libifconfig_state {
+    struct errstate error;
+    // Add socket cache here. But this requires rewriting it to fit.
+};
+
 extern struct errstate libifconfig_errstate;
 
 // TODO: Use this in get_capability?
 struct libifconfig_capabilities {
-    /// <summary>Current capabilities</summary>
+    /// <summary>Current capabilities (ifconfig prints this as 'options')</summary>
     int curcap;
-    /// <summary>Requested capabilities</summary>
+    /// <summary>Requested capabilities (ifconfig prints this as 'capabilities')</summary>
     int reqcap;
 };
 
@@ -74,4 +79,4 @@ int libifconfig_set_metric(const char *name, const int metric);
 int libifconfig_get_metric(const char *name, int *metric);
 
 int libifconfig_set_capability(const char *name, const int capability);
-int libifconfig_get_capability(const char *name, int *capability);
+int libifconfig_get_capability(const char *name, struct libifconfig_capabilities *capability);

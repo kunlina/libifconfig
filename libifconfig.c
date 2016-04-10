@@ -283,35 +283,43 @@ int libifconfig_get_metric(const char *name, int *metric) {
  */
 int libifconfig_set_capability(const char *name, const int capability) {
         struct ifreq ifr;
+        struct libifconfig_capabilities ifcap;
         int flags;
         int value, s;
         
+        /*
+         * Get the socket early, as if this fails
+         * there's no point to _get_capability().
+         */
         if (libifconfig_socket(AF_LOCAL, &s) != 0)
             return -1;
         
-        value = capability;
-        strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
-        
-        if (libifconfig_ioctlwrap_caddr(s, SIOCGIFCAP, &ifr) < 0) {
+        if (libifconfig_get_capability(name, &ifcap) != 0)
             return -1;
-        }
         
-        flags = ifr.ifr_curcap;
+        value = capability;        
+        flags = ifcap.curcap;
         if (value < 0) {
             value = -value;
             flags &= ~value;
         } else
             flags |= value;
-        flags &= ifr.ifr_reqcap;
+        flags &= ifcap.reqcap;
+        
+        strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
+        /*
+         * TODO: Verify that it's safe to not have ifr.ifr_curcap
+         * set for this request.
+         */
         ifr.ifr_reqcap = flags;
         if (libifconfig_ioctlwrap_caddr(s, SIOCSIFCAP, &ifr) < 0) {
             return -1;
         }
         return 0;
-} 
+}
 
 // Todo: convert 'capability' to struct libifconfig_capabilities
-int libifconfig_get_capability(const char *name, int *capability) {
+int libifconfig_get_capability(const char *name, struct libifconfig_capabilities *capability) {
         struct ifreq ifr;
         int s;
     
@@ -323,6 +331,7 @@ int libifconfig_get_capability(const char *name, int *capability) {
         if (libifconfig_ioctlwrap_caddr(s, SIOCGIFCAP, &ifr) < 0) {
             return -1;
         }
-        *capability = ifr.ifr_curcap;
+        capability->curcap = ifr.ifr_curcap;
+        capability->reqcap = ifr.ifr_reqcap;
         return 0;
 }
