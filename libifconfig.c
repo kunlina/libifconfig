@@ -84,7 +84,7 @@ static int libifconfig_ioctlwrap_ret(unsigned long request, int rcode) {
     if (rcode != 0) {    
         libifconfig_errstate.errtype = IOCTL;
         libifconfig_errstate.ioctl_request = request;
-        libifconfig_errstate.ioctl_err = rcode;
+        libifconfig_errstate.errcode = errno;
     }
     return rcode;
 }
@@ -131,8 +131,8 @@ int libifconfig_get_description(const char *name, char **description) {
             } else {
                 if (descr != NULL)
                     free(descr);
-                libifconfig_errstate.errtype = ERRNO;
-                errno = ENOMEM;
+                libifconfig_errstate.errtype = OTHER;
+                libifconfig_errstate.errcode = ENOMEM;
                 return -1;
             }
             break;
@@ -160,8 +160,8 @@ int libifconfig_set_description(const char *name, const char *newdescription) {
         ifr.ifr_buffer.length = desclen + 1;
         ifr.ifr_buffer.buffer = strdup(newdescription);
         if (ifr.ifr_buffer.buffer == NULL) {
-            libifconfig_errstate.errtype = ERRNO;
-            errno = ENOMEM;
+            libifconfig_errstate.errtype = OTHER;
+            libifconfig_errstate.errcode = ENOMEM;
             return -1;
         }
         
@@ -202,8 +202,8 @@ int libifconfig_set_name(const char *name, const char *newname) {
         
         tmpname = strdup(newname);
         if (tmpname == NULL) {
-            libifconfig_errstate.errtype = ERRNO;
-            errno = ENOMEM;
+            libifconfig_errstate.errtype = OTHER;
+            libifconfig_errstate.errcode = ENOMEM;
             return -1;
         }
         

@@ -30,7 +30,7 @@
 
 #pragma once
 
-typedef enum {OTHER, ERRNO, IOCTL, SOCKET} libifconfig_errtype;
+typedef enum {OTHER, IOCTL, SOCKET} libifconfig_errtype;
 
 // Contains libifconfig error state
 struct errstate {
@@ -42,10 +42,9 @@ struct errstate {
     /// </summary>
     int ioctl_request;
     /// <summary>
-    /// Error code returned by the ioctl() call.
-    /// Populated if errtype = IOCTL
+    /// The value of the global errno variable when the error occured.
     /// </summary>
-    int ioctl_err;
+    int errcode;
 };
 
 struct libifconfig_state {

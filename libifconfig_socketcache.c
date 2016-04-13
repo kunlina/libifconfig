@@ -57,17 +57,22 @@ static int sdexpand() {
          * this one fails.
          */
         int *nsdkeys = realloc(sdkeys, newsize);
+        
+        /*
+         * TODO: Decide whether type 'SOCKET' should be strictly for socket(),
+         * or also for anything involving getting a socket.
+         */
         if (nsdkeys == NULL) {
-            libifconfig_errstate.errtype = ERRNO;
-            errno = ENOMEM;
+            libifconfig_errstate.errtype = OTHER;
+            libifconfig_errstate.errcode = ENOMEM;
             return -1;
         }
         
         int *nsdvals = realloc(sdvals, newsize);
         if (nsdvals == NULL) {
             free(nsdkeys);
-            libifconfig_errstate.errtype = ERRNO;
-            errno = ENOMEM;
+            libifconfig_errstate.errtype = OTHER;
+            libifconfig_errstate.errcode = ENOMEM;
             return -1;                
         }
         
@@ -109,15 +114,16 @@ int libifconfig_socket(const int addressfamily, int *s) {
         
          // We don't have a socket of that type available. Create one.    
         if (sdindex == sdsize && sdexpand() != 0) {
-            // Just return here, as we can inherit error state from sdexpand().
+            // Inherit error from sdexpand()  
             return -1; 
         }
         
         
         sock = socket(addressfamily, SOCK_DGRAM, 0);
-        if (sock < 0)
+        if (sock == -1)
         {
             libifconfig_errstate.errtype = SOCKET;
+            libifconfig_errstate.errcode = errno;
             return -1; 
         }
         
