@@ -46,16 +46,16 @@
 /// <code>
 /// static void myfunc() {
 ///    int s;
-///    if (libifconfig_socket(AF_LOCAL, &s) != 0) {
+///    if (libifc_socket(AF_LOCAL, &s) != 0) {
 ///        // Handle error state here
 ///    }
 ///    // user code here
 /// }
 /// </code>
 /// </example> 
-int libifconfig_socket(const int addressfamily, int *s);
+int libifc_socket(const int addressfamily, int *s);
 
 /// <summary>
 /// Closes sockets and frees resources held by the socket cache.
 /// </summary>
-void libifconfig_socketcache_free_resources(void);
+void libifc_socketcache_free_resources(void);

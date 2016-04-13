@@ -30,12 +30,12 @@
 
 #pragma once
 
-typedef enum {OTHER, IOCTL, SOCKET} libifconfig_errtype;
+typedef enum {OTHER, IOCTL, SOCKET} libifc_errtype;
 
 // Contains libifconfig error state
 struct errstate {
     /// <summary>Type of error.</summary>
-    libifconfig_errtype errtype;
+    libifc_errtype errtype;
     /// <summary>
     /// The error occured in this ioctl() request.
     /// Populated if errtype = IOCTL
@@ -47,15 +47,15 @@ struct errstate {
     int errcode;
 };
 
-struct libifconfig_state {
+struct libifc_state {
     struct errstate error;
     // Add socket cache here. But this requires rewriting it to fit.
 };
 
-extern struct errstate libifconfig_errstate;
+extern struct errstate libifc_errstate;
 
 // TODO: Use this in get_capability?
-struct libifconfig_capabilities {
+struct libifc_capabilities {
     /// <summary>Current capabilities (ifconfig prints this as 'options')</summary>
     int curcap;
     /// <summary>Requested capabilities (ifconfig prints this as 'capabilities')</summary>
@@ -63,19 +63,19 @@ struct libifconfig_capabilities {
 };
 
 /// <summary>Frees resources held by the internal state of the library.</summary>
-void libifconfig_free_resources(void);
+void libifc_free_resources(void);
 
-int libifconfig_get_description(const char *name, char **description);
-int libifconfig_set_description(const char *name, const char *newdescription);
-int libifconfig_unset_description(const char *name);
+int libifc_get_description(const char *name, char **description);
+int libifc_set_description(const char *name, const char *newdescription);
+int libifc_unset_description(const char *name);
 
-int libifconfig_set_name(const char *name, const char *newname);
+int libifc_set_name(const char *name, const char *newname);
 
-int libifconfig_set_mtu(const char *name, const int mtu);
-int libifconfig_get_mtu(const char *name, int *mtu);
+int libifc_set_mtu(const char *name, const int mtu);
+int libifc_get_mtu(const char *name, int *mtu);
 
-int libifconfig_set_metric(const char *name, const int metric);
-int libifconfig_get_metric(const char *name, int *metric);
+int libifc_set_metric(const char *name, const int metric);
+int libifc_get_metric(const char *name, int *metric);
 
-int libifconfig_set_capability(const char *name, const int capability);
-int libifconfig_get_capability(const char *name, struct libifconfig_capabilities *capability);
+int libifc_set_capability(const char *name, const int capability);
+int libifc_get_capability(const char *name, struct libifc_capabilities *capability);

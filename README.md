@@ -7,17 +7,16 @@ The following examples have been written to give some pointers on how to use the
 ```
 // Print current interface description, then remove it.
 char *desc;
-  if (libifconfig_get_description("em0", &desc) == 0)
+  if (libifc_get_description("em0", &desc) == 0)
     printf("old description: %s\n", desc);
-  if (libifconfig_unset_description("em0") == 0)
+  if (libifc_unset_description("em0") == 0)
     printf("Successfully unset description.");
   else
     printf("Couldn't unset description. Lazy example writer is lazy,
-and instructs reader to imagine using libifconfig_errstate to create useful
+and instructs reader to imagine using libifc_errstate to create useful
 error messages.");
 
-if (desc != NULL)
-  free(desc);
+free(desc);
 ```
 
 ```
@@ -25,22 +24,22 @@ if (desc != NULL)
 int mtu = 9000;
 char *netif = "em0";
 int retcode = 0;
-if (libifconfig_set_mtu(netif, mtu) == 0) {
+if (libifc_set_mtu(netif, mtu) == 0) {
     printf("Successfully changed MTU of %s to %d", netif, mtu);
     free(netif);
     return 0;
   }
 else {
-  switch (libifconfig_errstate.errtype)  {
+  switch (libifc_errstate.errtype)  {
   case SOCKET:
     warnx("couldn't create socket. This shouldn't happen.\n");
     break;
   case IOCTL:
-    if (libifconfig_errstate.ioctl_request == SIOCSIFMTU) 
+    if (libifc_errstate.ioctl_request == SIOCSIFMTU) 
       warnx("Failed to set MTU (SIOCSIFMTU)\n");
     else
       warnx("Failed to set MTU due to error in unexpected ioctl() call %lu. Error code: %i.\n", 
-        libifconfig_errstate.ioctl_request, libifconfig_errstate.ioctl_err);
+        libifc_errstate.ioctl_request, libifc_errstate.errcode);
     break;
   default:
     warnx("Should basically never end up here in this example.\n");
@@ -57,7 +56,7 @@ else {
  * This is, at a minimum, before program exit.
  * Currently, this clears & frees the socket cache, and closes the sockets thereof.
  */
-libifconfig_free_resources();
+libifc_free_resources();
 ```
 
 ## Mailing List Threads

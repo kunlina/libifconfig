@@ -36,7 +36,7 @@
 
 #include <unistd.h>
 
-#include "libifconfig.h" // Needed for libifconfig_errstate
+#include "libifconfig.h" // Needed for libifc_errstate
 #include "libifconfig_socketcache.h"
 
 static int sdindex = 0;
@@ -63,16 +63,16 @@ static int sdexpand() {
          * or also for anything involving getting a socket.
          */
         if (nsdkeys == NULL) {
-            libifconfig_errstate.errtype = OTHER;
-            libifconfig_errstate.errcode = ENOMEM;
+            libifc_errstate.errtype = OTHER;
+            libifc_errstate.errcode = ENOMEM;
             return -1;
         }
         
         int *nsdvals = realloc(sdvals, newsize);
         if (nsdvals == NULL) {
             free(nsdkeys);
-            libifconfig_errstate.errtype = OTHER;
-            libifconfig_errstate.errcode = ENOMEM;
+            libifc_errstate.errtype = OTHER;
+            libifc_errstate.errcode = ENOMEM;
             return -1;                
         }
         
@@ -102,7 +102,7 @@ static int sdexpand() {
  * Function to get socket for the specified address family.
  * If the socket doesn't already exist, attempt to create it.
  */
-int libifconfig_socket(const int addressfamily, int *s) {
+int libifc_socket(const int addressfamily, int *s) {
         int sock;
 
         for (int i=0; i<sdindex; i++){
@@ -122,8 +122,8 @@ int libifconfig_socket(const int addressfamily, int *s) {
         sock = socket(addressfamily, SOCK_DGRAM, 0);
         if (sock == -1)
         {
-            libifconfig_errstate.errtype = SOCKET;
-            libifconfig_errstate.errcode = errno;
+            libifc_errstate.errtype = SOCKET;
+            libifc_errstate.errcode = errno;
             return -1; 
         }
         
@@ -134,7 +134,7 @@ int libifconfig_socket(const int addressfamily, int *s) {
         return 0;
 }
 
-void libifconfig_socketcache_free_resources(void) {
+void libifc_socketcache_free_resources(void) {
         if (sdkeys != NULL) {
             free(sdkeys);
             sdkeys = NULL;
