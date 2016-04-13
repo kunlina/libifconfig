@@ -116,7 +116,7 @@ int libifconfig_get_description(const char *name, char **description) {
             if ((descr = reallocf(descr, descrlen)) != NULL) {
                 ifr.ifr_buffer.buffer = descr;
                 ifr.ifr_buffer.length = descrlen;
-                if (ioctl(s, SIOCGIFDESCR, &ifr) == 0) {
+                if (libifconfig_ioctlwrap(s, SIOCGIFDESCR, &ifr) == 0) {
                     if (ifr.ifr_buffer.buffer == descr) {
                         if (strlen(descr) > 0) {
                             *description = strdup(descr);
@@ -128,17 +128,18 @@ int libifconfig_get_description(const char *name, char **description) {
                         continue;
                     }
                 }
+                else {
+                    return -1;
+                }
             } else {
-                if (descr != NULL)
-                    free(descr);
+                free(descr);
                 libifconfig_errstate.errtype = OTHER;
                 libifconfig_errstate.errcode = ENOMEM;
                 return -1;
             }
             break;
         }
-        if (descr != NULL)
-            free(descr);
+        free(descr);
         libifconfig_errstate.errtype = OTHER;
         return -1;
 }
