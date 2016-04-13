@@ -40,7 +40,7 @@ struct errstate {
     /// The error occured in this ioctl() request.
     /// Populated if errtype = IOCTL
     /// </summary>
-    int ioctl_request;
+    unsigned long ioctl_request;
     /// <summary>
     /// The value of the global errno variable when the error occured.
     /// </summary>
