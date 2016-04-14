@@ -3,10 +3,10 @@
 LIB=    ifconfig
 SHLIBDIR?= /lib
 SHLIB_MAJOR= 1
-SRCS=   libifconfig.c libifconfig_socketcache.c
+SRCS=   libifconfig.c libifconfig_internal.c
 
 INCSDIR=	${INCLUDEDIR}/libifconfig
-INCS=   libifconfig.h libifconfig_socketcache.h
+INCS=   libifconfig.h
 
 #MAN=    libifconfig.3
 
