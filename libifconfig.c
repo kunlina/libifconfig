@@ -103,7 +103,7 @@ int libifc_err_errno(libifc_handle_t *h) {
 }
 
 int libifc_err_ioctlreq(libifc_handle_t *h) {
-    return h->error.ioctl_request;
+        return h->error.ioctl_request;
 }
 
 int libifc_get_description(libifc_handle_t *h, const char *name, char **description) {

@@ -40,10 +40,10 @@ struct libifc_handle;
 typedef struct libifc_handle libifc_handle_t;
 
 struct libifc_capabilities {
-    /// <summary>Current capabilities (ifconfig prints this as 'options')</summary>
-    int curcap;
-    /// <summary>Requested capabilities (ifconfig prints this as 'capabilities')</summary>
-    int reqcap;
+        /// <summary>Current capabilities (ifconfig prints this as 'options')</summary>
+        int curcap;
+        /// <summary>Requested capabilities (ifconfig prints this as 'capabilities')</summary>
+        int reqcap;
 };
 
 

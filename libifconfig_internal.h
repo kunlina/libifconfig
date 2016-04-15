@@ -28,21 +28,23 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#pragma once
+
 #include "libifconfig.h"
 
 
 struct errstate {
-    /// <summary>Type of error.</summary>
-    libifc_errtype errtype;
-    /// <summary>
-    /// The error occured in this ioctl() request.
-    /// Populated if errtype = IOCTL
-    /// </summary>
-    unsigned long ioctl_request;
-    /// <summary>
-    /// The value of the global errno variable when the error occured.
-    /// </summary>
-    int errcode;
+        /// <summary>Type of error.</summary>
+        libifc_errtype errtype;
+        /// <summary>
+        /// The error occured in this ioctl() request.
+        /// Populated if errtype = IOCTL
+        /// </summary>
+        unsigned long ioctl_request;
+        /// <summary>
+        /// The value of the global errno variable when the error occured.
+        /// </summary>
+        int errcode;
 };
 
 struct socketcache {
@@ -83,12 +85,6 @@ struct libifc_handle {
 /// </code>
 /// </example> 
 int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s);
-
-/// <description>
-/// Lets library functions which can't see the real libifc_handle definition
-/// report the 'other' error type with an error code.
-///
-void libifc_error_set_other(libifc_handle_t *h, int errcode);
 
 /// <summary> function used by other wrapper functions to populate _errstate when appropriate. </summary>
 int libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode);

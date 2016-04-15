@@ -42,22 +42,22 @@
 #include "libifconfig_internal.h"
 
 int libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode) {
-    if (rcode != 0) {    
-        h->error.errtype = IOCTL;
-        h->error.ioctl_request = request;
-        h->error.errcode = errno;
-    }
-    return rcode;
+        if (rcode != 0) {    
+            h->error.errtype = IOCTL;
+            h->error.ioctl_request = request;
+            h->error.errcode = errno;
+        }
+        return rcode;
 }
 
 int libifc_ioctlwrap(libifc_handle_t *h, int s, unsigned long request, struct ifreq *ifr) {
-    int rcode = ioctl(s, request, ifr);
-    return libifc_ioctlwrap_ret(h, request, rcode);    
+        int rcode = ioctl(s, request, ifr);
+        return libifc_ioctlwrap_ret(h, request, rcode);    
 }
 
 int libifc_ioctlwrap_caddr(libifc_handle_t *h, int s, unsigned long request, struct ifreq *ifr) {
-    int rcode = ioctl(s, request, (caddr_t)ifr);
-    return libifc_ioctlwrap_ret(h, request, rcode);
+        int rcode = ioctl(s, request, (caddr_t)ifr);
+        return libifc_ioctlwrap_ret(h, request, rcode);
 }
 
 
