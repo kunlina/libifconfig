@@ -50,12 +50,20 @@ int libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode) {
         return rcode;
 }
 
-int libifc_ioctlwrap(libifc_handle_t *h, int s, unsigned long request, struct ifreq *ifr) {
+int libifc_ioctlwrap(libifc_handle_t *h, const int addressfamily, unsigned long request, struct ifreq *ifr) {
+        int s;
+        if (libifc_socket(h, addressfamily, &s) != 0)
+            return -1;
+        
         int rcode = ioctl(s, request, ifr);
         return libifc_ioctlwrap_ret(h, request, rcode);    
 }
 
-int libifc_ioctlwrap_caddr(libifc_handle_t *h, int s, unsigned long request, struct ifreq *ifr) {
+int libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily, unsigned long request, struct ifreq *ifr) {
+        int s;
+        if (libifc_socket(h, addressfamily, &s) != 0)
+            return -1;
+        
         int rcode = ioctl(s, request, (caddr_t)ifr);
         return libifc_ioctlwrap_ret(h, request, rcode);
 }

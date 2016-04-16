@@ -110,16 +110,13 @@ int libifc_get_description(libifc_handle_t *h, const char *name, char **descript
         struct ifreq ifr;
         char *descr = NULL;
         size_t descrlen = 64;
-        int s;
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
         
         strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
         for (;;) {
             if ((descr = reallocf(descr, descrlen)) != NULL) {
                 ifr.ifr_buffer.buffer = descr;
                 ifr.ifr_buffer.length = descrlen;
-                if (libifc_ioctlwrap(h, s, SIOCGIFDESCR, &ifr) == 0) {
+                if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFDESCR, &ifr) == 0) {
                     if (ifr.ifr_buffer.buffer == descr) {
                         if (strlen(descr) > 0) {
                             *description = strdup(descr);
@@ -150,10 +147,8 @@ int libifc_get_description(libifc_handle_t *h, const char *name, char **descript
 
 int libifc_set_description(libifc_handle_t *h, const char *name, const char *newdescription) {
         struct ifreq ifr;
-        int desclen, s;
+        int desclen;
         desclen = strlen(newdescription);
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)            
-            return -1; // Just return, as we can inherit error from ..._socket()
         
         // Unset description if the new description is 0 characters long.
         // TODO: Decide whether this should be an error condition instead.
@@ -175,7 +170,7 @@ int libifc_set_description(libifc_handle_t *h, const char *name, const char *new
          * description is too long. If truncates, this function should probably
          * have an error condition for this further up.
          */
-        if (libifc_ioctlwrap_caddr(h, s, SIOCSIFDESCR, &ifr) != 0) {
+        if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFDESCR, &ifr) != 0) {
             if (ifr.ifr_buffer.buffer != NULL)
                 free(ifr.ifr_buffer.buffer);
             return -1;
@@ -187,16 +182,12 @@ int libifc_set_description(libifc_handle_t *h, const char *name, const char *new
 
 int libifc_unset_description(libifc_handle_t *h, const char *name) {
         struct ifreq ifr;
-        int s;
-        
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
         
         strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
         ifr.ifr_buffer.length = 0;
         ifr.ifr_buffer.buffer = NULL;
         
-        if (libifc_ioctlwrap_caddr(h, s, SIOCSIFDESCR, &ifr) < 0) {
+        if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFDESCR, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -205,10 +196,6 @@ int libifc_unset_description(libifc_handle_t *h, const char *name) {
 int libifc_set_name(libifc_handle_t *h, const char *name, const char *newname) {        
         struct ifreq ifr;
         char *tmpname;
-        int s;
-    
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
         
         tmpname = strdup(newname);
         if (tmpname == NULL) {
@@ -225,7 +212,7 @@ int libifc_set_name(libifc_handle_t *h, const char *name, const char *newname) {
          * name is too long. If truncates, this function should have an error
          * condition for this further up.
          */
-        if (libifc_ioctlwrap_caddr(h, s, SIOCSIFNAME, &ifr) != 0) {
+        if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFNAME, &ifr) != 0) {
             free(tmpname);
             return -1;
         }
@@ -235,14 +222,10 @@ int libifc_set_name(libifc_handle_t *h, const char *name, const char *newname) {
 
 int libifc_set_mtu(libifc_handle_t *h, const char *name, const int mtu){
         struct ifreq ifr;
-        int s;
-    
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
         ifr.ifr_mtu = mtu;
-        if (libifc_ioctlwrap_caddr(h, s, SIOCSIFMTU, &ifr) < 0) {
+        if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFMTU, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -250,13 +233,9 @@ int libifc_set_mtu(libifc_handle_t *h, const char *name, const int mtu){
 
 int libifc_get_mtu(libifc_handle_t *h, const char *name, int *mtu) {
         struct ifreq ifr;
-        int s;
-    
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
-        if (libifc_ioctlwrap(h, s, SIOCGIFMTU, &ifr) == -1) {
+        if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFMTU, &ifr) == -1) {
             return -1;
         }
         *mtu = ifr.ifr_mtu;
@@ -265,14 +244,10 @@ int libifc_get_mtu(libifc_handle_t *h, const char *name, int *mtu) {
 
 int libifc_set_metric(libifc_handle_t *h, const char *name, const int mtu){
         struct ifreq ifr;
-        int s;
-    
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
         ifr.ifr_mtu = mtu;
-        if (libifc_ioctlwrap_caddr(h, s, SIOCSIFMETRIC, &ifr) < 0) {
+        if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFMETRIC, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -280,13 +255,9 @@ int libifc_set_metric(libifc_handle_t *h, const char *name, const int mtu){
 
 int libifc_get_metric(libifc_handle_t *h, const char *name, int *metric) {
         struct ifreq ifr;
-        int s;
-    
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
         
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
-        if (libifc_ioctlwrap(h, s, SIOCGIFMETRIC, &ifr) == -1) {
+        if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFMETRIC, &ifr) == -1) {
             return -1;
         }
         *metric = ifr.ifr_metric;
@@ -297,14 +268,7 @@ int libifc_set_capability(libifc_handle_t *h, const char *name, const int capabi
         struct ifreq ifr;
         struct libifc_capabilities ifcap;
         int flags;
-        int value, s;
-        
-        /*
-         * Get the socket early, as if this fails
-         * there's no point to _get_capability().
-         */
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
+        int value;
         
         if (libifc_get_capability(h, name, &ifcap) != 0)
             return -1;
@@ -324,7 +288,7 @@ int libifc_set_capability(libifc_handle_t *h, const char *name, const int capabi
          * set for this request.
          */
         ifr.ifr_reqcap = flags;
-        if (libifc_ioctlwrap_caddr(h, s, SIOCSIFCAP, &ifr) < 0) {
+        if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFCAP, &ifr) < 0) {
             return -1;
         }
         return 0;
@@ -333,14 +297,10 @@ int libifc_set_capability(libifc_handle_t *h, const char *name, const int capabi
 // Todo: convert 'capability' to struct libifc_capabilities
 int libifc_get_capability(libifc_handle_t *h, const char *name, struct libifc_capabilities *capability) {
         struct ifreq ifr;
-        int s;
-    
-        if (libifc_socket(h, AF_LOCAL, &s) != 0)
-            return -1;
 
         strncpy(ifr.ifr_name, name, sizeof (ifr.ifr_name));
         
-        if (libifc_ioctlwrap_caddr(h, s, SIOCGIFCAP, &ifr) < 0) {
+        if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCGIFCAP, &ifr) < 0) {
             return -1;
         }
         capability->curcap = ifr.ifr_curcap;
