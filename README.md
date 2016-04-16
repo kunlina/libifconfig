@@ -25,17 +25,17 @@ The following examples have been written to give some pointers on how to use the
 
 ```
 // Print current interface description, then remove it.
-libifc_handle_t lifh = libifc_open();
+libifc_handle_t *lifh = libifc_open();
 // ...
 char *desc;
   if (libifc_get_description(lifh, "em0", &desc) == 0)
     printf("old description: %s\n", desc);
   if (libifc_unset_description(lifh, "em0") == 0)
-    printf("Successfully unset description.");
+    printf("Successfully unset description.\n");
   else
     printf("Couldn't unset description. Lazy example writer is lazy,
-and instructs reader to imagine using libifc_errstate to create useful
-error messages.");
+and instructs reader to imagine using libifc_err_* to create useful
+error messages.\n");
 
 libifc_close(lifh);
 lifh = NULL;
@@ -44,13 +44,13 @@ free(desc);
 
 ```
 // Set interface MTU
-libifc_handle_t lifh = libifc_open();
+libifc_handle_t *lifh = libifc_open();
 // ...
 int mtu = 9000;
 char *netif = "em0";
 int retcode = 0;
 if (libifc_set_mtu(lifh, netif, mtu) == 0) {
-    printf("Successfully changed MTU of %s to %d", netif, mtu);
+    printf("Successfully changed MTU of %s to %d\n", netif, mtu);
     libifc_close(lifh);
     lifh = NULL;
     free(netif);    
