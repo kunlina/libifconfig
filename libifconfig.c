@@ -102,7 +102,7 @@ int libifc_err_errno(libifc_handle_t *h) {
         return h->error.errcode;
 }
 
-int libifc_err_ioctlreq(libifc_handle_t *h) {
+unsigned long libifc_err_ioctlreq(libifc_handle_t *h) {
         return h->error.ioctl_request;
 }
 

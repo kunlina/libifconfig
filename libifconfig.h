@@ -53,7 +53,7 @@ void libifc_close(libifc_handle_t *h);
 
 libifc_errtype libifc_err_errtype(libifc_handle_t *h);
 int libifc_err_errno(libifc_handle_t *h);
-int libifc_err_ioctlreq(libifc_handle_t *h);
+unsigned long libifc_err_ioctlreq(libifc_handle_t *h);
 
 int libifc_get_description(libifc_handle_t *h, const char *name, char **description);
 int libifc_set_description(libifc_handle_t *h, const char *name, const char *newdescription);
