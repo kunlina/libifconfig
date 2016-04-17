@@ -11,7 +11,7 @@ to prevent multiple threads from using the same state object at the same time.
 
 ```
 // Create a state object
-libifc_handle_t lifh = libifc_open();
+libifc_handle_t *lifh = libifc_open();
 
 // Do stuff
 

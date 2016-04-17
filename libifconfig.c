@@ -294,7 +294,6 @@ int libifc_set_capability(libifc_handle_t *h, const char *name, const int capabi
         return 0;
 }
 
-// Todo: convert 'capability' to struct libifc_capabilities
 int libifc_get_capability(libifc_handle_t *h, const char *name, struct libifc_capabilities *capability) {
         struct ifreq ifr;
 
