@@ -34,14 +34,16 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
- #include <sys/ioctl.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 
 #include "libifconfig.h" // Needed for libifc_errstate
 #include "libifconfig_internal.h"
 
-int libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode) {
+int
+libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode) {
+        
         if (rcode != 0) {    
             h->error.errtype = IOCTL;
             h->error.ioctl_request = request;
@@ -50,17 +52,21 @@ int libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode) {
         return rcode;
 }
 
-int libifc_ioctlwrap(libifc_handle_t *h, const int addressfamily, unsigned long request, struct ifreq *ifr) {
+int
+libifc_ioctlwrap(libifc_handle_t *h, const int addressfamily, unsigned long request, struct ifreq *ifr) {
         int s;
+        
         if (libifc_socket(h, addressfamily, &s) != 0)
             return -1;
         
         int rcode = ioctl(s, request, ifr);
-        return libifc_ioctlwrap_ret(h, request, rcode);    
+        return libifc_ioctlwrap_ret(h, request, rcode);
 }
 
-int libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily, unsigned long request, struct ifreq *ifr) {
+int
+libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily, unsigned long request, struct ifreq *ifr) {
         int s;
+        
         if (libifc_socket(h, addressfamily, &s) != 0)
             return -1;
         
@@ -69,9 +75,11 @@ int libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily, unsigned
 }
 
 
-static int sdexpand(libifc_handle_t *h) {
-         // Initial size of dictionary is 4. If it needs to be larger, double it.        
+static int
+sdexpand(libifc_handle_t *h) {
+         // Initial size of dictionary is 4. If it needs to be larger, double it.
         int newsize;
+        
         if (h->sockets.sdsize == 0)
             newsize = (4 * sizeof(int));
         else
@@ -98,7 +106,7 @@ static int sdexpand(libifc_handle_t *h) {
             free(nsdkeys);
             h->error.errtype = OTHER;
             h->error.errcode = ENOMEM;
-            return -1;                
+            return -1;
         }
         
         // Keep old arrays so we can free them later
@@ -119,7 +127,7 @@ static int sdexpand(libifc_handle_t *h) {
         free(osdvals);
         // Update size
         h->sockets.sdsize = newsize;
-        return 0;        
+        return 0;
 }
 
 /*
@@ -133,16 +141,15 @@ int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s) {
             if (h->sockets.sdkeys[i] == addressfamily) {
                 *s = h->sockets.sdvals[i];
                 return 0;
-            }                
+            }
         }
         
-         // We don't have a socket of that type available. Create one.    
+         // We don't have a socket of that type available. Create one.
         if (h->sockets.sdindex == h->sockets.sdsize && sdexpand(h) != 0) {
             // Inherit error from sdexpand()  
             return -1; 
         }
-        
-        
+                
         sock = socket(addressfamily, SOCK_DGRAM, 0);
         if (sock == -1)
         {
