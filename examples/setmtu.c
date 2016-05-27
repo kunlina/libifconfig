@@ -30,6 +30,8 @@
 
 #include <err.h>
 #include <errno.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,48 +43,50 @@ int main(int argc, char *argv[])
 	if (argc != 3) {
 		errx(EINVAL, "Invalid number of arguments."
 		    " First argument should be interface name, second argument"
-		    " should be the description to set.");
+		    " should be the MTU to set.");
 	}
 
-	char *ifname, *ifdescr, *curdescr;
+	char *ifname, *ptr;
+	int mtu;
+
 	/* We have a static number of arguments. Therefore we can do  it simple. */
 	ifname = strdup(argv[1]);
-	ifdescr = strdup(argv[2]);
+	mtu = (int)strtol(argv[2], &ptr, 10);
 
 	printf("Interface name: %s\n", ifname);
+	printf("New MTU: %d", mtu);
 
 	libifc_handle_t *lifh = libifc_open();
-	if (libifc_get_description(lifh, ifname, &curdescr) == 0) {
-		printf("Old description: %s\n", curdescr);
-	}
-
-	printf("New description: %s\n\n", ifdescr);
-
-	if (libifc_set_description(lifh, ifname, ifdescr) == 0) {
-		printf("New description successfully set.\n");
+	if (libifc_set_mtu(lifh, ifname, mtu) == 0) {
+		printf("Successfully changed MTU of %s to %d\n", ifname, mtu);
+		libifc_close(lifh);
+		lifh = NULL;
+		free(ifname);
+		return (0);
 	} else {
 		switch (libifc_err_errtype(lifh)) {
 		case SOCKET:
-			err(libifc_err_errno(lifh), "Socket error");
+			warnx("couldn't create socket. This shouldn't happen.\n");
 			break;
 		case IOCTL:
-			err(libifc_err_errno(
-				    lifh), "IOCTL(%lu) error",
-			    libifc_err_ioctlreq(lifh));
+			if (libifc_err_ioctlreq(lifh) == SIOCSIFMTU) {
+				warnx("Failed to set MTU (SIOCSIFMTU)\n");
+			} else {
+				warnx(
+					"Failed to set MTU due to error in unexpected ioctl() call %lu. Error code: %i.\n",
+					libifc_err_ioctlreq(lifh),
+					libifc_err_errno(lifh));
+			}
 			break;
-		case OTHER:
-			err(libifc_err_errno(lifh), "Other error");
+		default:
+			warnx(
+				"Should basically never end up here in this example.\n");
 			break;
 		}
+
+		libifc_close(lifh);
+		lifh = NULL;
+		free(ifname);
+		return (-1);
 	}
-
-	free(ifname);
-	free(ifdescr);
-	free(curdescr);
-	ifname = NULL;
-	ifdescr = NULL;
-	curdescr = NULL;
-
-	libifc_close(lifh);
-	return (0);
 }
