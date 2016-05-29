@@ -20,6 +20,19 @@ libifc_close(lifh);
 lifh = NULL;
 ```
 
+## Check for style(9) compliance
+In the root directory:
+```
+make -f Makefile.standalone checkstyle
+```
+
+## Generate documentation with Doxygen
+In the root directory:
+```
+mkdir -p stage/doxygen
+doxygen tools/Doxyfile
+```
+
 ## Example usage
 Please see the [examples directory](examples/) for some simple programs using libifconfig.
 
