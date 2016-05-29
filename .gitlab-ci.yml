@@ -15,6 +15,10 @@ buildlib:
   - freebsd
  script:
   - make
+ artifacts:
+  name: "libifc"
+  paths:
+   - stage/libifc/
 
 verify_style9:
  stage: test
@@ -35,15 +39,3 @@ doxygen:
  artifacts:
   paths:
    - stage/doxygen/
-
-libifc:
- stage: release
- tags:
- - shell
- - freebsd
- script:
- - test -d stage/libifc
- artifacts:
-  paths:
-   - stage/libifc/
-
