@@ -35,16 +35,15 @@ doxygen:
  artifacts:
   paths:
    - stage/doxygen/
-# only:
-#  - tags
 
 libifc:
  stage: release
  tags:
  - shell
  - freebsd
+ script:
+ - test -d stage/libifc
  artifacts:
   paths:
    - stage/libifc/
-# only:
-#  - tags
+
