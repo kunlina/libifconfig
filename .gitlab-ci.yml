@@ -1,19 +1,50 @@
 before_script:
  - ln -s ./Makefile.standalone Makefile
  - which uncrustify
+ - uname -a
 
 stages:
  - build
  - test
+ - release
 
-buildstuff:
+buildlib:
  stage: build
+ tags: 
+  - shell
+  - freebsd
  script:
-  - uname -a
   - make
 
 verify_style9:
  stage: test
+ tags: 
+  - shell
+  - freebsd
+  - uncrustify
  script:
   - make checkstyle
 
+doxygen:
+ stage: release
+ tags: 
+  - shell
+  - doxygen
+ script:
+  - make doxygen
+ artifacts:
+  paths:
+   - stage/doxygen/
+# only:
+#  - tags
+
+libifc:
+ stage: release
+ tags:
+ - shell
+ - freebsd
+ artifacts:
+  paths:
+   - stage/libifc/
+# only:
+#  - tags

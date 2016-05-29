@@ -1,6 +1,13 @@
 default:
-	$(CC) -Wall -fPIC -shared -o libifconfig.so libifconfig.c libifconfig_internal.c
+	rm -Rf stage/libifc
+	mkdir -p stage/libifc
+	$(CC) -Wall -fPIC -shared -o stage/libifc/libifconfig.so libifconfig.c libifconfig_internal.c
+	cp libifconfig.h stage/libifc/
 clean:
-	rm *.so
+	rm -Rf stage
 checkstyle:
 	uncrustify --check -q -c tools/uncrustify_freebsd.cfg `find . -name "*.[c|h]"`
+doxygen:
+	rm -Rf stage/doxygen
+	mkdir -p stage/doxygen
+	doxygen tools/Doxyfile
