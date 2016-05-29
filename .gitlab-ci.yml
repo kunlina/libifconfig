@@ -15,5 +15,5 @@ buildstuff:
 verify_style9:
  stage: test
  script:
-  - make test
+  - make checkstyle
 
