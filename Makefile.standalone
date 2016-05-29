@@ -1,2 +1,6 @@
 default:
 	$(CC) -Wall -fPIC -shared -o libifconfig.so libifconfig.c libifconfig_internal.c
+test:
+	uncrustify --check -c tools/uncrustify_freebsd.cfg `find . -name "*.[c|h]"`
+clean:
+	rm *.so

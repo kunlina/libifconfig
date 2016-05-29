@@ -1,8 +1,19 @@
-#
-# This is just a placeholder to get started.
-#
 before_script:
- - which cc
-
-verify_style9
+ - ln -s ./Makefile.standalone Makefile
  - which uncrustify
+
+stages:
+ - build
+ - test
+
+buildstuff:
+ stage: build
+ script:
+  - uname -a
+  - make
+
+verify_style9:
+ stage: test
+ script:
+  - make test
+
