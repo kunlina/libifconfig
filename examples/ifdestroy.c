@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	if (argc != 2) {
 		errx(EINVAL, "Invalid number of arguments."
 		    " Only one argument is accepted, and it should be the name"
-			" of the interface to be destroyed.");
+		    " of the interface to be destroyed.");
 	}
 
 	char *ifname;
@@ -67,7 +67,8 @@ int main(int argc, char *argv[])
 			break;
 		case IOCTL:
 			if (libifc_err_ioctlreq(lifh) == SIOCIFDESTROY) {
-				warnx("Failed to destroy interface (SIOCIFDESTROY)\n");
+				warnx(
+					"Failed to destroy interface (SIOCIFDESTROY)\n");
 			}
 			break;
 		default:
