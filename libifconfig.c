@@ -354,3 +354,16 @@ int libifc_get_capability(libifc_handle_t *h, const char *name,
 	capability->reqcap = ifr.ifr_reqcap;
 	return (0);
 }
+
+int libifc_destroy_interface(libifc_handle_t *h, const char *name)
+{
+	struct ifreq ifr;
+	
+	(void) strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+	
+	if (libifc_ioctlwrap(h, AF_LOCAL, SIOCIFDESTROY, &ifr) < 0)
+	{
+		return (-1);
+	}
+	return 0;
+}
