@@ -1,23 +1,19 @@
 var searchData=
 [
-  ['libifc_5fcapabilities',['libifc_capabilities',['../structlibifc__capabilities.html',1,'']]],
   ['libifc_5fclose',['libifc_close',['../libifconfig_8h.html#a242446197b45c3c03a8df4d9a26765bc',1,'libifconfig.h']]],
   ['libifc_5fdestroy_5finterface',['libifc_destroy_interface',['../libifconfig_8h.html#a15220c8ba6b9c51b8a1bb165c2b38ded',1,'libifconfig.h']]],
   ['libifc_5ferr_5ferrno',['libifc_err_errno',['../libifconfig_8h.html#a2279bd592eb172620deba7316da8bb8d',1,'libifconfig.h']]],
   ['libifc_5ferr_5ferrtype',['libifc_err_errtype',['../libifconfig_8h.html#abd81413bc3216898472480a4fcce1c50',1,'libifconfig.h']]],
   ['libifc_5ferr_5fioctlreq',['libifc_err_ioctlreq',['../libifconfig_8h.html#aaf3b9eaec3154d6c0daeb47d83ab4382',1,'libifconfig.h']]],
-  ['libifc_5ferrtype',['libifc_errtype',['../libifconfig_8h.html#a6260ca4f7e788235b14e67e979964e1a',1,'libifconfig.h']]],
   ['libifc_5fget_5fcapability',['libifc_get_capability',['../libifconfig_8h.html#adb9240f0904d509bb8000d4e3e2a8d08',1,'libifconfig.h']]],
   ['libifc_5fget_5fdescription',['libifc_get_description',['../libifconfig_8h.html#a869972fca8937f5f0b3dbc89096b2179',1,'libifconfig.h']]],
   ['libifc_5fget_5fmetric',['libifc_get_metric',['../libifconfig_8h.html#aba43bc02a8e20f7acd9fc88596137857',1,'libifconfig.h']]],
   ['libifc_5fget_5fmtu',['libifc_get_mtu',['../libifconfig_8h.html#abcfa5ecaeb1d8c11ab140240b5a31e6c',1,'libifconfig.h']]],
-  ['libifc_5fhandle_5ft',['libifc_handle_t',['../libifconfig_8h.html#a58bf5bc17ae45f8622e3d72ec9feb42f',1,'libifconfig.h']]],
   ['libifc_5fopen',['libifc_open',['../libifconfig_8h.html#a8e3a47cb48256585dceb74b0dabef2a7',1,'libifconfig.h']]],
   ['libifc_5fset_5fcapability',['libifc_set_capability',['../libifconfig_8h.html#a0a15e2f712621f08ff5fc06e2015f78b',1,'libifconfig.h']]],
   ['libifc_5fset_5fdescription',['libifc_set_description',['../libifconfig_8h.html#a4d3e46116710db1fd6b9a5b3bb3135de',1,'libifconfig.h']]],
   ['libifc_5fset_5fmetric',['libifc_set_metric',['../libifconfig_8h.html#a77568085bc2ab3ec2966cccb6f4571d6',1,'libifconfig.h']]],
   ['libifc_5fset_5fmtu',['libifc_set_mtu',['../libifconfig_8h.html#a7c4aeef9bcf7aa7f27eab1c9853a1024',1,'libifconfig.h']]],
   ['libifc_5fset_5fname',['libifc_set_name',['../libifconfig_8h.html#aad74057348f8d1997804afba70360622',1,'libifconfig.h']]],
-  ['libifc_5funset_5fdescription',['libifc_unset_description',['../libifconfig_8h.html#a4c9c2d0841911e68251d9233799b4573',1,'libifconfig.h']]],
-  ['libifconfig_2eh',['libifconfig.h',['../libifconfig_8h.html',1,'']]]
+  ['libifc_5funset_5fdescription',['libifc_unset_description',['../libifconfig_8h.html#a4c9c2d0841911e68251d9233799b4573',1,'libifconfig.h']]]
 ];

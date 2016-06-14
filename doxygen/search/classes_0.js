@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['errstate',['errstate',['../structerrstate.html',1,'']]]
+  ['libifc_5fcapabilities',['libifc_capabilities',['../structlibifc__capabilities.html',1,'']]]
 ];
