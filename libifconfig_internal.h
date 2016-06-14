@@ -35,16 +35,18 @@
 
 struct errstate {
 	/**
-     * Type of error.
-     */
+	 * Type of error.
+	 */
 	libifc_errtype errtype;
+
 	/**
 	 * The error occured in this ioctl() request.
 	 * Populated if errtype = IOCTL
 	 */
 	unsigned long ioctl_request;
+
 	/**
-	 *The value of the global errno variable when the error occured.
+	 * The value of the global errno variable when the error occured.
 	 */
 	int errcode;
 };

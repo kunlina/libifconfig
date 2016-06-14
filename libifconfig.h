@@ -61,12 +61,13 @@ struct libifc_capabilities {
  * libifc_close(lifh);
  * lifh = NULL;
  *}
-*/
+ */
 libifc_handle_t *libifc_open(void);
+
 /** Frees resources held in the provided state object.
  * @param h The state object to close.
  * @see #libifc_open(void)
-*/
+ */
 void libifc_close(libifc_handle_t *h);
 
 libifc_errtype libifc_err_errtype(libifc_handle_t *h);
