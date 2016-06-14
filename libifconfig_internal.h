@@ -34,16 +34,20 @@
 
 
 struct errstate {
-	/// <summary>Type of error.</summary>
+	/**
+	 * Type of error.
+	 */
 	libifc_errtype errtype;
-	/// <summary>
-	/// The error occured in this ioctl() request.
-	/// Populated if errtype = IOCTL
-	/// </summary>
+
+	/**
+	 * The error occured in this ioctl() request.
+	 * Populated if errtype = IOCTL
+	 */
 	unsigned long ioctl_request;
-	/// <summary>
-	/// The value of the global errno variable when the error occured.
-	/// </summary>
+
+	/**
+	 * The value of the global errno variable when the error occured.
+	 */
 	int errcode;
 };
 
@@ -59,40 +63,34 @@ struct libifc_handle {
 	struct socketcache sockets;
 };
 
-/// <summary>
-/// Retrieves socket for address family <paramref name="addressfamily"> from
-/// cache, or creates it if it doesn't already exist.
-/// </summary>
-/// <param name="addressfamily">
-/// The address family of the socket to retrieve
-/// </param>
-/// <param name="s">
-/// The retrieved socket
-/// </param>
-/// <returns>
-/// 0 on success, -1 on error
-/// </returns>
-/// <example>
-/// This example shows how to retrieve a socket from the cache.
-/// <code>
-/// static void myfunc() {
-///    int s;
-///    if (libifc_socket(AF_LOCAL, &s) != 0) {
-///        // Handle error state here
-///    }
-///    // user code here
-/// }
-/// </code>
-/// </example>
+/**
+ * Retrieves socket for address family <paramref name="addressfamily"> from
+ * cache, or creates it if it doesn't already exist.
+ * @param addressfamily The address family of the socket to retrieve
+ * @param s The retrieved socket.
+ * @return 0 on success, -1 on failure.
+ * {@example
+ * This example shows how to retrieve a socket from the cache.
+ * {@code
+ * static void myfunc() \{
+ *    int s;
+ *    if (libifc_socket(AF_LOCAL, &s) != 0) \{
+ *        // Handle error state here
+ *    \}
+ *    // user code here
+ * \}
+ * }
+ * }
+ */
 int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s);
 
-/// <summary> function used by other wrapper functions to populate _errstate when appropriate. </summary>
+/** Function used by other wrapper functions to populate _errstate when appropriate.*/
 int libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode);
 
-/// <summary> function to wrap ioctl() and automatically populate libifc_errstate when appropriate. </summary>
+/** Function to wrap ioctl() and automatically populate libifc_errstate when appropriate.*/
 int libifc_ioctlwrap(libifc_handle_t *h, const int addressfamily,
     unsigned long request, struct ifreq *ifr);
 
-/// <summary> function to wrap ioctl(), casting ifr to caddr_t, and automatically populate libifc_errstate when appropriate. </summary>
+/** <summary> function to wrap ioctl(), casting ifr to caddr_t, and automatically populate libifc_errstate when appropriate.*/
 int libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily,
     unsigned long request, struct ifreq *ifr);
