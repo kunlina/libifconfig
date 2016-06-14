@@ -42,15 +42,31 @@ struct libifc_handle;
 typedef struct libifc_handle   libifc_handle_t;
 
 struct libifc_capabilities {
-	/// <summary>Current capabilities (ifconfig prints this as 'options')</summary>
+	/** Current capabilities (ifconfig prints this as 'options')*/
 	int curcap;
-	/// <summary>Requested capabilities (ifconfig prints this as 'capabilities')</summary>
+	/** Requested capabilities (ifconfig prints this as 'capabilities')*/
 	int reqcap;
 };
 
 
-
+/** Retrieves a new state object for use in other API calls.
+ * Example usage:
+ *{@code
+ * // Create state object
+ * libifc_handle_t *lifh = libifc_open();
+ *
+ * // Do stuff with it
+ *
+ * // Dispose of the state object
+ * libifc_close(lifh);
+ * lifh = NULL;
+ *}
+*/
 libifc_handle_t *libifc_open(void);
+/** Frees resources held in the provided state object.
+ * @param h The state object to close.
+ * @see #libifc_open(void)
+*/
 void libifc_close(libifc_handle_t *h);
 
 libifc_errtype libifc_err_errtype(libifc_handle_t *h);
