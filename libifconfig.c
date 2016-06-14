@@ -174,8 +174,10 @@ libifc_set_description(libifc_handle_t *h, const char *name,
 
 	desclen = strlen(newdescription);
 
-	// Unset description if the new description is 0 characters long.
-	// TODO: Decide whether this should be an error condition instead.
+	/*
+	 * Unset description if the new description is 0 characters long.
+	 * TODO: Decide whether this should be an error condition instead.
+	 */
 	if (desclen == 0) {
 		return (libifc_unset_description(h, name));
 	}
