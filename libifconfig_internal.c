@@ -86,7 +86,7 @@ libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily,
 static int
 sdexpand(libifc_handle_t *h)
 {
-	// Initial size of dictionary is 4. If it needs to be larger, double it.
+	/* Initial size of dictionary is 4. If it needs to be larger, double it. */
 	int newsize;
 
 	if (h->sockets.sdsize == 0) {
@@ -119,7 +119,7 @@ sdexpand(libifc_handle_t *h)
 		return (-1);
 	}
 
-	// Keep old arrays so we can free them later
+	/* Keep old arrays so we can free them later */
 	int *osdkeys = h->sockets.sdkeys;
 	int *osdvals = h->sockets.sdvals;
 
@@ -132,10 +132,10 @@ sdexpand(libifc_handle_t *h)
 	h->sockets.sdvals = nsdvals;
 	h->sockets.sdkeys = nsdkeys;
 
-	// Free old memory maps.
+	/* Free old memory maps. */
 	free(osdkeys);
 	free(osdvals);
-	// Update size
+	/* Update size */
 	h->sockets.sdsize = newsize;
 	return (0);
 }
@@ -156,9 +156,9 @@ int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s)
 		}
 	}
 
-	// We don't have a socket of that type available. Create one.
+	/* We don't have a socket of that type available. Create one. */
 	if ((h->sockets.sdindex == h->sockets.sdsize) && (sdexpand(h) != 0)) {
-		// Inherit error from sdexpand()
+		/* Inherit error from sdexpand() */
 		return (-1);
 	}
 
