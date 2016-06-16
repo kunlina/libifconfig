@@ -369,3 +369,32 @@ int libifc_destroy_interface(libifc_handle_t *h, const char *name)
 	}
 	return (0);
 }
+
+
+int libifc_create_interface(libifc_handle_t *h, const char *name, char **ifname)
+{
+	struct ifreq ifr;
+
+	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+
+	/*
+	 * TODO:
+	 * Insert special snowflake handling here. See GitHub issue #12 for details.
+	 * In the meantime, hard-nosupport interfaces that need special handling.
+	 */
+	if ((strncmp(name, "wlan", strlen("wlan")) == 0) ||
+	    (strncmp(name, "vlan", strlen("vlan")) == 0) ||
+	    (strncmp(name, "vxlan", strlen("vxlan")) == 0)) {
+		h->error.errtype = OTHER;
+		h->error.errcode = ENOSYS;
+		return (-1);
+	}
+
+	/* No special handling for this interface type. */
+
+	if (libifc_ioctlwrap(h, AF_LOCAL, SIOCIFCREATE2, &ifr) < 0) {
+		return (-1);
+	}
+	*ifname = strdup(ifr.ifr_name);
+	return (0);
+}
