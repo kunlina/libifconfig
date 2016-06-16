@@ -93,3 +93,5 @@ int libifc_set_capability(libifc_handle_t *h, const char *name,
 int libifc_get_capability(libifc_handle_t *h, const char *name,
     struct libifc_capabilities *capability);
 int libifc_destroy_interface(libifc_handle_t *h, const char *name);
+int libifc_create_interface(libifc_handle_t *h, const char *name,
+    char **ifname);
