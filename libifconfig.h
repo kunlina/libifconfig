@@ -70,8 +70,13 @@ libifc_handle_t *libifc_open(void);
  */
 void libifc_close(libifc_handle_t *h);
 
+/** Identifies what kind of error occured. */
 libifc_errtype libifc_err_errtype(libifc_handle_t *h);
+
+/** Retrieves the errno associated with the error, if any. */
 int libifc_err_errno(libifc_handle_t *h);
+
+/** If error type was IOCTL, this identifies which request failed. */
 unsigned long libifc_err_ioctlreq(libifc_handle_t *h);
 
 int libifc_get_description(libifc_handle_t *h, const char *name,
@@ -79,9 +84,7 @@ int libifc_get_description(libifc_handle_t *h, const char *name,
 int libifc_set_description(libifc_handle_t *h, const char *name,
     const char *newdescription);
 int libifc_unset_description(libifc_handle_t *h, const char *name);
-
 int libifc_set_name(libifc_handle_t *h, const char *name, const char *newname);
-
 int libifc_set_mtu(libifc_handle_t *h, const char *name, const int mtu);
 int libifc_get_mtu(libifc_handle_t *h, const char *name, int *mtu);
 
@@ -92,6 +95,15 @@ int libifc_set_capability(libifc_handle_t *h, const char *name,
     const int capability);
 int libifc_get_capability(libifc_handle_t *h, const char *name,
     struct libifc_capabilities *capability);
+
+/** Destroy a virtual interface
+ * @param name Interface to destroy
+ */
 int libifc_destroy_interface(libifc_handle_t *h, const char *name);
+
+/** Creates a (virtual) interface
+ * @param name Name of interface to create. Example: bridge or bridge42
+ * @param name ifname Is set to actual name of created interface
+ */
 int libifc_create_interface(libifc_handle_t *h, const char *name,
     char **ifname);
