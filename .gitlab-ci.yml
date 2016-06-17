@@ -24,7 +24,6 @@ verify_style9:
  stage: test
  tags: 
   - shell
-  - freebsd
   - uncrustify
  script:
   - make checkstyle
