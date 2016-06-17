@@ -1,8 +1,8 @@
 default:
 	rm -Rf stage/libifc
 	mkdir -p stage/libifc
-	$(CC) -Wall -fPIC -shared -o stage/libifc/libifconfig.so libifconfig.c libifconfig_internal.c
-	cp libifconfig.h stage/libifc/
+	$(CC) -Wall -fPIC -shared -o stage/libifc/libifconfig.so src/libifconfig.c src/libifconfig_internal.c
+	cp src/libifconfig.h stage/libifc/
 clean:
 	rm -Rf stage
 checkstyle:

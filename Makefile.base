@@ -5,10 +5,10 @@ LIB=    ifconfig
 
 SHLIBDIR?= /lib
 SHLIB_MAJOR= 1
-SRCS=   libifconfig.c libifconfig_internal.c
+SRCS=   src/libifconfig.c src/libifconfig_internal.c
 
 INCSDIR=	${INCLUDEDIR}/libifconfig
-INCS=   libifconfig.h
+INCS=   src/libifconfig.h
 
 #MAN=    libifconfig.3
 
