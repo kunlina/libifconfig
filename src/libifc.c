@@ -76,7 +76,6 @@
 
 #define	NOTAG	((u_short) -1)
 
-
 libifc_handle_t *
 libifc_open(void)
 {
