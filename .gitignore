@@ -33,3 +33,6 @@
 
 # Stage stuff
 stage/**
+
+# local dev envorinment stuff
+.vscode/**
