@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libifconfig/libifconfig.h>
+#include <libifconfig.h>
 
 
 int main(int argc, char *argv[])

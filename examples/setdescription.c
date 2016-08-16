@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libifconfig/libifconfig.h>
+#include <libifconfig.h>
 
 
 int main(int argc, char *argv[])
@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 	/* We have a static number of arguments. Therefore we can do  it simple. */
 	ifname = strdup(argv[1]);
 	ifdescr = strdup(argv[2]);
+	curdescr = NULL;
 
 	printf("Interface name: %s\n", ifname);
 
