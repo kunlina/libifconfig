@@ -69,8 +69,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <net/if_vlan_var.h>
+
 #include "libifconfig.h"
 #include "libifconfig_internal.h"
+
+#define	NOTAG	((u_short) -1)
 
 
 libifc_handle_t *
@@ -397,4 +401,28 @@ int libifc_create_interface(libifc_handle_t *h, const char *name, char **ifname)
 	}
 	*ifname = strdup(ifr.ifr_name);
 	return (0);
+}
+
+int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
+    const char **ifname, const char *vlandev, const unsigned long vlanid)
+{
+    struct ifreq ifr;
+    struct vlanreq params;
+    
+    if (vlanid == NOTAG || vlandev[0] == '\0') {
+        // TODO: Add proper error tracking here
+        return -1;
+    }
+    
+    (void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+    params.vlr_tag = vlanid;
+    (void)strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
+    ifr.ifr_data = (caddr_t) &params;
+	
+    if (libifc_ioctlwrap(h, AF_LOCAL, SIOCIFCREATE2, &ifr) < 0)
+    {
+        // TODO: Add proper error tracking here
+		return -1;
+    }
+    return 0;
 }
