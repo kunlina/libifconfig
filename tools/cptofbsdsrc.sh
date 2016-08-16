@@ -40,6 +40,7 @@ svn add "${svndir}/lib/libifconfig"
 svn add "${svndir}/share/examples/libifconfig"
 
 echo "Storing diff as ~/libifconfig.patch"
-svn diff --diff-cmd=diff -x -U999999 "${svndir}" > ~/libifconfig.patch
+cd "${svndir}"
+svn diff --diff-cmd=diff -x -U999999 . > ~/libifconfig.patch
 
 echo "End of script. Yay."
