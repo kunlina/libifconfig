@@ -44,19 +44,10 @@
 
 #include <net/if_vlan_var.h>
 
-<<<<<<< 0a5a1f5cba21ee540cab5c76d8ce9dee6e8b67f0:src/libifconfig.c
 #include "libifconfig.h"
 #include "libifconfig_internal.h"
 
 #define	NOTAG	((u_short) -1)
-=======
-#include "libifc.h"
-#include "libifc_internal.h"
-
-#define	NOTAG	((u_short) -1)
-
->>>>>>> First stab at creating interfaces. Much more work needed.:src/libifc.c
-
 
 ifconfig_handle_t *
 ifconfig_open(void)
