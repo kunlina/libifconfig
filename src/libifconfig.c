@@ -44,10 +44,18 @@
 
 #include <net/if_vlan_var.h>
 
+<<<<<<< 0a5a1f5cba21ee540cab5c76d8ce9dee6e8b67f0:src/libifconfig.c
 #include "libifconfig.h"
 #include "libifconfig_internal.h"
 
 #define	NOTAG	((u_short) -1)
+=======
+#include "libifc.h"
+#include "libifc_internal.h"
+
+#define	NOTAG	((u_short) -1)
+
+>>>>>>> First stab at creating interfaces. Much more work needed.:src/libifc.c
 
 
 ifconfig_handle_t *
@@ -413,18 +421,18 @@ ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 }
 
 int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
-    const char **ifname, const char *vlandev, const unsigned long vlantag)
+    const char **ifname, const char *vlandev, const unsigned long vlanid)
 {
     struct ifreq ifr;
     struct vlanreq params;
     
-    if (vlantag == NOTAG || vlandev[0] == '\0') {
+    if (vlanid == NOTAG || vlandev[0] == '\0') {
         // TODO: Add proper error tracking here
         return -1;
     }
     
     (void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
-    params.vlr_tag = vlantag;
+    params.vlr_tag = vlanid;
     (void)strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
     ifr.ifr_data = (caddr_t) &params;
 	
@@ -433,6 +441,7 @@ int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
         // TODO: Add proper error tracking here
 		return -1;
     }
+
 	*ifname = strdup(ifr.ifr_name);
     return 0;
 }
