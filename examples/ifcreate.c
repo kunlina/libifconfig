@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
 	char *ifname, *ifactualname;
 
-	/* We have a static number of arguments. Therefore we can do  it simple. */
+	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
 
 	printf("Requested interface name: %s\n", ifname);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 			break;
 		default:
 			warnx(
-				"This is a thorough example accomodating for temporary"
+				"This is a thorough example accommodating for temporary"
 				" 'not implemented yet' errors. That's likely what happened"
 				" now. If not, your guess is as good as mine. ;)"
 				" Error code: %d\n", libifc_err_errno(

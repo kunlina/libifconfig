@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 	char *ifname, *ptr;
 	int mtu;
 
-	/* We have a static number of arguments. Therefore we can do  it simple. */
+	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
 	mtu = (int)strtol(argv[2], &ptr, 10);
 

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
 	char *ifname;
 
-	/* We have a static number of arguments. Therefore we can do  it simple. */
+	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
 
 	printf("Interface name: %s\n", ifname);

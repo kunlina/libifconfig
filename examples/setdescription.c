@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	}
 
 	char *ifname, *ifdescr, *curdescr;
-	/* We have a static number of arguments. Therefore we can do  it simple. */
+	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
 	ifdescr = strdup(argv[2]);
 	curdescr = NULL;
