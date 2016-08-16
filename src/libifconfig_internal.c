@@ -82,65 +82,6 @@ libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily,
 	return (libifc_ioctlwrap_ret(h, request, rcode));
 }
 
-
-static int
-sdexpand(libifc_handle_t *h)
-{
-	/* Initial size of dictionary is 4. If it needs to be larger, double it. */
-	int newsize;
-
-	if (h->sockets.sdsize == 0) {
-		newsize = (4 * sizeof(int));
-	} else {
-		newsize = (2 * h->sockets.sdsize  * sizeof(int));
-	}
-
-	/*
-	 * Don't use reallocf, as we want to keep the old allocation if
-	 * this one fails.
-	 */
-	int *nsdkeys = realloc(h->sockets.sdkeys, newsize);
-
-	/*
-	 * TODO: Decide whether type 'SOCKET' should be strictly for socket(),
-	 * or also for anything involving getting a socket.
-	 */
-	if (nsdkeys == NULL) {
-		h->error.errtype = OTHER;
-		h->error.errcode = ENOMEM;
-		return (-1);
-	}
-
-	int *nsdvals = realloc(h->sockets.sdvals, newsize);
-	if (nsdvals == NULL) {
-		free(nsdkeys);
-		h->error.errtype = OTHER;
-		h->error.errcode = ENOMEM;
-		return (-1);
-	}
-
-	/* Keep old arrays so we can free them later */
-	int *osdkeys = h->sockets.sdkeys;
-	int *osdvals = h->sockets.sdvals;
-
-	/*
-	 * If libifconfig is ever going to be thread-safe and not just
-	 * thread-friendly, it's important sdvals is updated first.
-	 * This would prevent a potential race condition when looking up keys
-	 * whose value isn't set yet.
-	 */
-	h->sockets.sdvals = nsdvals;
-	h->sockets.sdkeys = nsdkeys;
-
-	/* Free old memory maps. */
-	free(osdkeys);
-	free(osdvals);
-	/* Update size */
-	h->sockets.sdsize = newsize;
-	return (0);
-}
-
-
 /*
  * Function to get socket for the specified address family.
  * If the socket doesn't already exist, attempt to create it.
@@ -157,10 +98,14 @@ int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s)
 	}
 
 	/* We don't have a socket of that type available. Create one. */
-	if ((h->sockets.sdindex == h->sockets.sdsize) && (sdexpand(h) != 0)) {
+	if (h->sockets.sdindex == h->sockets.sdsize) {
 		/* Inherit error from sdexpand() */
+		// TODO: Figure out which error codes to set here.
+		h->error.errtype = SOCKET;
+		h->error.errcode = OTHER;
 		return (-1);
 	}
+
 
 	sock = socket(addressfamily, SOCK_DGRAM, 0);
 	if (sock == -1) {
