@@ -90,10 +90,9 @@ libifc_open()
 void
 libifc_close(libifc_handle_t *h)
 {
-	if (h->sockets.sdkeys != NULL) {
-		free(h->sockets.sdkeys);
-		h->sockets.sdkeys = NULL;
-	}
+	free(h->sockets.sdkeys);
+	h->sockets.sdkeys = NULL;
+
 	if (h->sockets.sdvals != NULL) {
 		for (int i = 0; i < h->sockets.sdindex; i++) {
 			(void)close(h->sockets.sdvals[i]);
@@ -136,29 +135,27 @@ libifc_get_description(libifc_handle_t *h, const char *name, char **description)
 
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	for (;;) {
-		if ((descr = reallocf(descr, descrlen)) != NULL) {
-			ifr.ifr_buffer.buffer = descr;
-			ifr.ifr_buffer.length = descrlen;
-			if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFDESCR,
-			    &ifr) == 0) {
-				if (ifr.ifr_buffer.buffer == descr) {
-					if (strlen(descr) > 0) {
-						*description = strdup(descr);
-						free(descr);
-						return (0);
-					}
-				} else if (ifr.ifr_buffer.length > descrlen) {
-					descrlen = ifr.ifr_buffer.length;
-					continue;
-				}
-			} else {
-				return (-1);
-			}
-		} else {
-			free(descr);
+		if ((descr = reallocf(descr, descrlen)) == NULL) {
 			h->error.errtype = OTHER;
 			h->error.errcode = ENOMEM;
 			return (-1);
+		}
+
+		ifr.ifr_buffer.buffer = descr;
+		ifr.ifr_buffer.length = descrlen;
+		if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFDESCR,
+			&ifr) != 0) 
+			return (-1);
+		
+		if (ifr.ifr_buffer.buffer == descr) {
+			if (strlen(descr) > 0) {
+				*description = strdup(descr);
+				free(descr);
+				return (0);
+			}
+		} else if (ifr.ifr_buffer.length > descrlen) {
+			descrlen = ifr.ifr_buffer.length;
+			continue;
 		}
 		break;
 	}
@@ -196,20 +193,11 @@ libifc_set_description(libifc_handle_t *h, const char *name,
 		return (-1);
 	}
 
-	/*
-	 * TODO: Check whether this ioctl() call truncates or fails when new
-	 * description is too long. If truncates, this function should probably
-	 * have an error condition for this further up.
-	 */
 	if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFDESCR, &ifr) != 0) {
-		if (ifr.ifr_buffer.buffer != NULL) {
-			free(ifr.ifr_buffer.buffer);
-		}
+		free(ifr.ifr_buffer.buffer);
 		return (-1);
 	}
-	if (ifr.ifr_buffer.buffer != NULL) {
-		free(ifr.ifr_buffer.buffer);
-	}
+	free(ifr.ifr_buffer.buffer);
 	return (0);
 }
 
@@ -244,11 +232,6 @@ int libifc_set_name(libifc_handle_t *h, const char *name, const char *newname)
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_data = tmpname;
 
-	/*
-	 * TODO: Check whether this ioctl() call truncates or fails when new
-	 * name is too long. If truncates, this function should have an error
-	 * condition for this further up.
-	 */
 	if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFNAME, &ifr) != 0) {
 		free(tmpname);
 		return (-1);
