@@ -6,7 +6,7 @@ Index: share/mk/bsd.libnames.mk
  LIBIBSDP?=	${DESTDIR}${LIBDIR}/libibsdp.a
  LIBIBUMAD?=	${DESTDIR}${LIBDIR}/libibumad.a
  LIBIBVERBS?=	${DESTDIR}${LIBDIR}/libibverbs.a
-+LIBIFCONFIG?=	${DESTDIR}${LIBDIR}/libifconfig.a
++LIBIFC?=	${DESTDIR}${LIBDIR}/libifconfig.a
  LIBIPSEC?=	${DESTDIR}${LIBDIR}/libipsec.a
  LIBJAIL?=	${DESTDIR}${LIBDIR}/libjail.a
  LIBKADM5CLNT?=	${DESTDIR}${LIBDIR}/libkadm5clnt.a
@@ -18,7 +18,7 @@ Index: share/mk/src.libnames.mk
  		heimntlm \
  		heimsqlite \
  		hx509 \
-+		ifconfig \
++		ifc \
  		ipsec \
  		jail \
  		kadm5clnt \
