@@ -116,5 +116,5 @@ int ifconfig_create_interface(ifconfig_handle_t *h, const char *name,
 int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
     const char **ifname, const char *vlandev, const unsigned long vlanid);
 
-int libifc_set_vlan(libifc_handle_t *h, const char *name, const char *vlandev,
-    const unsigned long vlanid);
+int libifc_set_vlantag(libifc_handle_t *h, const char *name,
+    const char *vlandev, const unsigned long vlantag);

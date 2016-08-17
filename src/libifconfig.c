@@ -377,7 +377,9 @@ int
 ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 {
 	struct ifreq ifr;
+
 	memset(&ifr, 0, sizeof(ifr));
+
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	/*
@@ -412,18 +414,18 @@ ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 }
 
 int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
-    const char **ifname, const char *vlandev, const unsigned long vlanid)
+    const char **ifname, const char *vlandev, const unsigned long vlantag)
 {
     struct ifreq ifr;
     struct vlanreq params;
     
-    if (vlanid == NOTAG || vlandev[0] == '\0') {
+    if (vlantag == NOTAG || vlandev[0] == '\0') {
         // TODO: Add proper error tracking here
         return -1;
     }
     
     (void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
-    params.vlr_tag = vlanid;
+    params.vlr_tag = vlantag;
     (void)strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
     ifr.ifr_data = (caddr_t) &params;
 	
