@@ -51,16 +51,9 @@ struct errstate {
 	int errcode;
 };
 
-struct socketcache {
-	int sdindex;
-	int sdsize;
-	int *sdkeys;
-	int *sdvals;
-};
-
 struct libifc_handle {
 	struct errstate error;
-	struct socketcache sockets;
+	int sockets[AF_MAX];
 };
 
 /**

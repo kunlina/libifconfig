@@ -90,22 +90,12 @@ int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s)
 {
 	int sock;
 
-	for (int i = 0; i < h->sockets.sdindex; i++) {
-		if (h->sockets.sdkeys[i] == addressfamily) {
-			*s = h->sockets.sdvals[i];
-			return (0);
-		}
+	if (h->sockets[addressfamily] != 0) {
+		*s = h->sockets[addressfamily];
+		return (0);
 	}
 
 	/* We don't have a socket of that type available. Create one. */
-	if (h->sockets.sdindex == h->sockets.sdsize) {
-		/* Inherit error from sdexpand() */
-		// TODO: Figure out which error codes to set here.
-		h->error.errtype = SOCKET;
-		h->error.errcode = OTHER;
-		return (-1);
-	}
-
 
 	sock = socket(addressfamily, SOCK_DGRAM, 0);
 	if (sock == -1) {
@@ -114,9 +104,7 @@ int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s)
 		return (-1);
 	}
 
-	h->sockets.sdkeys[h->sockets.sdindex] = addressfamily;
-	h->sockets.sdvals[h->sockets.sdindex] = sock;
-	h->sockets.sdindex++;
+	h->sockets[addressfamily] = sock;
 	*s = sock;
 	return (0);
 }

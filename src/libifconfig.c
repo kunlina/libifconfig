@@ -79,9 +79,6 @@ libifc_open()
 	struct libifc_handle *h;
 
 	h = calloc(1, sizeof(struct libifc_handle));
-	h->sockets.sdsize = AF_MAX;
-	h->sockets.sdkeys = malloc(sizeof(h->sockets.sdkeys) * h->sockets.sdsize);
-	h->sockets.sdvals = malloc(sizeof(h->sockets.sdvals) * h->sockets.sdsize);
 	
 	return (h);
 }
@@ -90,17 +87,9 @@ libifc_open()
 void
 libifc_close(libifc_handle_t *h)
 {
-	free(h->sockets.sdkeys);
-	h->sockets.sdkeys = NULL;
-
-	if (h->sockets.sdvals != NULL) {
-		for (int i = 0; i < h->sockets.sdindex; i++) {
-			(void)close(h->sockets.sdvals[i]);
-		}
-		free(h->sockets.sdvals);
-		h->sockets.sdvals = NULL;
+	for (int i = 0; i < AF_MAX; i++) {
+		(void)close(h->sockets[i]);
 	}
-	h->sockets.sdindex = 0;
 	free(h);
 }
 
