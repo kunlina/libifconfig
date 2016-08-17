@@ -38,8 +38,8 @@
 #include <unistd.h>
 
 
-#include "libifconfig.h" // Needed for libifc_errstate
-#include "libifconfig_internal.h"
+#include "libifc.h" // Needed for libifc_errstate
+#include "libifc_internal.h"
 
 int
 libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode)

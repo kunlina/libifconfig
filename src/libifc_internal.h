@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "libifconfig.h"
+#include "libifc.h"
 
 
 struct errstate {

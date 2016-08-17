@@ -69,8 +69,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "libifconfig.h"
-#include "libifconfig_internal.h"
+#include "libifc.h"
+#include "libifc_internal.h"
 
 
 libifc_handle_t *

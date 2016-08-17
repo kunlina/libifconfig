@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libifconfig.h>
+#include <libifc.h>
 
 
 int main(int argc, char *argv[])
