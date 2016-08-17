@@ -13,5 +13,6 @@ INCS=		libifc.h
 #MAN=		libifco.3
 
 CFLAGS+= -I${.CURDIR}
+WARNS?=6
 
 .include <bsd.lib.mk>
