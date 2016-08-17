@@ -80,6 +80,9 @@ libifc_open()
 
 	h = calloc(1, sizeof(struct libifc_handle));
 	
+	for (int i=0; i <= AF_MAX; i++)
+		h->sockets[i] = -1;
+	
 	return (h);
 }
 
@@ -87,8 +90,9 @@ libifc_open()
 void
 libifc_close(libifc_handle_t *h)
 {
-	for (int i = 0; i < AF_MAX; i++) {
-		(void)close(h->sockets[i]);
+	for (int i = 0; i <= AF_MAX; i++) {
+		if (h->sockets[i] != -1)
+			(void)close(h->sockets[i]);
 	}
 	free(h);
 }

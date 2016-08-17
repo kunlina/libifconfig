@@ -96,13 +96,12 @@ int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s)
 		return (-1);
 	}
 
-	if (h->sockets[addressfamily] != 0) {
+	if (h->sockets[addressfamily] != -1) {
 		*s = h->sockets[addressfamily];
 		return (0);
 	}
 
 	/* We don't have a socket of that type available. Create one. */
-
 	sock = socket(addressfamily, SOCK_DGRAM, 0);
 	if (sock == -1) {
 		h->error.errtype = SOCKET;

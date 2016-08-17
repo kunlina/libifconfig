@@ -53,7 +53,7 @@ struct errstate {
 
 struct libifc_handle {
 	struct errstate error;
-	int sockets[AF_MAX];
+	int sockets[AF_MAX + 1];
 };
 
 /**
