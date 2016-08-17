@@ -82,6 +82,7 @@ libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily,
 	return (libifc_ioctlwrap_ret(h, request, rcode));
 }
 
+
 /*
  * Function to get socket for the specified address family.
  * If the socket doesn't already exist, attempt to create it.
@@ -89,7 +90,7 @@ libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily,
 int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s)
 {
 	int sock;
-	
+
 	if (addressfamily > AF_MAX) {
 		h->error.errtype = SOCKET;
 		h->error.errcode = EINVAL;

@@ -79,10 +79,11 @@ libifc_open()
 	struct libifc_handle *h;
 
 	h = calloc(1, sizeof(struct libifc_handle));
-	
-	for (int i=0; i <= AF_MAX; i++)
+
+	for (int i = 0; i <= AF_MAX; i++) {
 		h->sockets[i] = -1;
-	
+	}
+
 	return (h);
 }
 
@@ -91,8 +92,9 @@ void
 libifc_close(libifc_handle_t *h)
 {
 	for (int i = 0; i <= AF_MAX; i++) {
-		if (h->sockets[i] != -1)
+		if (h->sockets[i] != -1) {
 			(void)close(h->sockets[i]);
+		}
 	}
 	free(h);
 }
@@ -137,9 +139,10 @@ libifc_get_description(libifc_handle_t *h, const char *name, char **description)
 		ifr.ifr_buffer.buffer = descr;
 		ifr.ifr_buffer.length = descrlen;
 		if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFDESCR,
-			&ifr) != 0) 
+		    &ifr) != 0) {
 			return (-1);
-		
+		}
+
 		if (ifr.ifr_buffer.buffer == descr) {
 			if (strlen(descr) > 0) {
 				*description = strdup(descr);
