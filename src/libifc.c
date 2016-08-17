@@ -373,6 +373,7 @@ int libifc_create_interface(libifc_handle_t *h, const char *name, char **ifname)
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(struct ifreq));
+
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	/*
@@ -381,7 +382,6 @@ int libifc_create_interface(libifc_handle_t *h, const char *name, char **ifname)
 	 * In the meantime, hard-nosupport interfaces that need special handling.
 	 */
 	if ((strncmp(name, "wlan", strlen("wlan")) == 0) ||
-	    (strncmp(name, "vlan", strlen("vlan")) == 0) ||
 	    (strncmp(name, "vxlan", strlen("vxlan")) == 0)) {
 		h->error.errtype = OTHER;
 		h->error.errcode = ENOSYS;
@@ -398,18 +398,18 @@ int libifc_create_interface(libifc_handle_t *h, const char *name, char **ifname)
 }
 
 int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
-    const char **ifname, const char *vlandev, const unsigned long vlanid)
+    const char **ifname, const char *vlandev, const unsigned long vlantag)
 {
     struct ifreq ifr;
     struct vlanreq params;
     
-    if (vlanid == NOTAG || vlandev[0] == '\0') {
+    if (vlantag == NOTAG || vlandev[0] == '\0') {
         // TODO: Add proper error tracking here
         return -1;
     }
     
     (void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
-    params.vlr_tag = vlanid;
+    params.vlr_tag = vlantag;
     (void)strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
     ifr.ifr_data = (caddr_t) &params;
 	
@@ -418,5 +418,33 @@ int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
         // TODO: Add proper error tracking here
 		return -1;
     }
+	*ifname = strdup(ifr.ifr_name);
     return 0;
+}
+
+int libifc_set_vlantag(libifc_handle_t *h, const char *name,
+    const char *vlandev, const unsigned long vlantag) {
+	struct ifreq ifr;
+	struct vlanreq vreq;
+	struct vlanreq params = {
+		.vlr_tag	= vlantag,
+	};
+
+	strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
+
+
+	// TODO: Refactor the following
+	bzero((char *)&vreq, sizeof(vreq));
+	ifr.ifr_data = (caddr_t)&vreq;
+	
+	if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGETVLAN, &ifr) == 0) {
+		return -1;
+	}
+
+	ifr.ifr_data = (caddr_t)&params;
+	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+	if (libifc_ioctlwrap(h, AF_LOCAL, SIOCSETVLAN, &ifr) == -1) {
+		return -1;
+	}
+	return 0;
 }
