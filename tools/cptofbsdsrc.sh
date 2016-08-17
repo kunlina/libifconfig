@@ -30,7 +30,10 @@ echo "Copying things"
 # Copy things!
 cp -R "${gitdir}/src" "${svndir}/lib/libifconfig"
 cp "${gitdir}/Makefile.base" "${svndir}/lib/libifconfig/Makefile"
-cp -R "${gitdir}/examples" "${svndir}/share/examples/libifconfig"
+# Ugly hack to not copy example_ executables.
+cd "${gitdir}/examples"
+make clean
+cp -Rf  "${gitdir}/examples" "${svndir}/share/examples/libifconfig"
 
 echo "Patching things"
 patch -p0 -d "${svndir}" < "${gitdir}tools/bsdbase_lib.patch"
