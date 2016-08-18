@@ -83,7 +83,3 @@ int libifc_ioctlwrap_ret(libifc_handle_t *h, unsigned long request, int rcode);
 /** Function to wrap ioctl() and automatically populate libifc_errstate when appropriate.*/
 int libifc_ioctlwrap(libifc_handle_t *h, const int addressfamily,
     unsigned long request, struct ifreq *ifr);
-
-/** <summary> function to wrap ioctl(), casting ifr to caddr_t, and automatically populate libifc_errstate when appropriate.*/
-int libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily,
-    unsigned long request, struct ifreq *ifr);
