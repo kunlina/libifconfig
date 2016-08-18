@@ -128,6 +128,7 @@ libifc_get_description(libifc_handle_t *h, const char *name, char **description)
 	char *descr = NULL;
 	size_t descrlen = 64;
 
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	for (;;) {
 		if ((descr = reallocf(descr, descrlen)) == NULL) {
@@ -168,8 +169,8 @@ libifc_set_description(libifc_handle_t *h, const char *name,
 {
 	struct ifreq ifr;
 	int desclen;
-	
-	memset(&ifr, 0, sizeof(ifreq));
+
+	memset(&ifr, 0, sizeof(struct ifreq));
 	desclen = strlen(newdescription);
 
 	/*
@@ -203,7 +204,7 @@ int libifc_unset_description(libifc_handle_t *h, const char *name)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_buffer.length = 0;
 	ifr.ifr_buffer.buffer = NULL;
@@ -220,7 +221,7 @@ int libifc_set_name(libifc_handle_t *h, const char *name, const char *newname)
 	struct ifreq ifr;
 	char *tmpname;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	tmpname = strdup(newname);
 	if (tmpname == NULL) {
 		h->error.errtype = OTHER;
@@ -244,7 +245,7 @@ int libifc_set_mtu(libifc_handle_t *h, const char *name, const int mtu)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_mtu = mtu;
 	if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFMTU, &ifr) < 0) {
@@ -258,7 +259,7 @@ int libifc_get_mtu(libifc_handle_t *h, const char *name, int *mtu)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFMTU, &ifr) == -1) {
 		return (-1);
@@ -272,7 +273,7 @@ int libifc_set_metric(libifc_handle_t *h, const char *name, const int mtu)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_mtu = mtu;
 	if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCSIFMETRIC, &ifr) < 0) {
@@ -286,7 +287,7 @@ int libifc_get_metric(libifc_handle_t *h, const char *name, int *metric)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	if (libifc_ioctlwrap(h, AF_LOCAL, SIOCGIFMETRIC, &ifr) == -1) {
 		return (-1);
@@ -304,7 +305,7 @@ int libifc_set_capability(libifc_handle_t *h, const char *name,
 	int flags;
 	int value;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	if (libifc_get_capability(h, name, &ifcap) != 0) {
 		return (-1);
 	}
@@ -338,7 +339,7 @@ int libifc_get_capability(libifc_handle_t *h, const char *name,
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	if (libifc_ioctlwrap_caddr(h, AF_LOCAL, SIOCGIFCAP, &ifr) < 0) {
@@ -354,7 +355,7 @@ int libifc_destroy_interface(libifc_handle_t *h, const char *name)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	if (libifc_ioctlwrap(h, AF_LOCAL, SIOCIFDESTROY, &ifr) < 0) {
@@ -368,7 +369,7 @@ int libifc_create_interface(libifc_handle_t *h, const char *name, char **ifname)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(ifreq));
+	memset(&ifr, 0, sizeof(struct ifreq));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	/*

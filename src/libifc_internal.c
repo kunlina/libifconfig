@@ -89,7 +89,6 @@ libifc_ioctlwrap_caddr(libifc_handle_t *h, const int addressfamily,
  */
 int libifc_socket(libifc_handle_t *h, const int addressfamily, int *s)
 {
-
 	if (addressfamily > AF_MAX) {
 		h->error.errtype = SOCKET;
 		h->error.errcode = EINVAL;
