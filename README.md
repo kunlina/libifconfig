@@ -1,7 +1,28 @@
-# libifconfig
+# libifc(onfig) 
+[![build status](https://gitlab.com/Savagedlight/libifconfig/badges/master/build.svg)](https://gitlab.com/Savagedlight/libifconfig/commits/master)
+
 A C API to do most things done by the FreeBSD 'ifconfig' program today. The primary goal is to reduce code duplication and empower third-party applications. It is hoped the API will be simple enough that interacting with the network configuration becomes trivial.
 
-## Using the state object (libifc_handle_t)
+## FAQ 
+__Is it ready for production use?__
+
+Absolutely not. There are currently no releases of this library, and the API may change at any time.
+
+__I want to break stuff. How do I use libifc?__
+
+Please see the [examples directory](examples/) for some simple programs using libifc.
+
+__How can I contribute?__
+
+Work still needs to be done in the following areas:
+* Add more features!
+* Solve tickets in the issue tracker
+* Write unit tests and system integration tests. Preferably using the tools used for tests in FreeBSD base.
+
+Feedback on API design decisions, code quality, etc are very welcome. If your feedback comes with (or in the form of) a pull request, that's great! :)
+
+__How do I use the state object (libifc_handle_t)__
+
 You need to create and dispose of a state object (libifc_handle_t).
 It is the applications discretion how to use/track state objects,
 but only one thread should use a given state object at the same time.
@@ -20,22 +41,7 @@ libifc_close(lifh);
 lifh = NULL;
 ```
 
-## Check for style(9) compliance
-In the root directory:
-```
-make -f Makefile.standalone checkstyle
-```
-
-## Generate documentation with Doxygen
-In the root directory:
-```
-mkdir -p stage/doxygen
-doxygen tools/Doxyfile
-```
-
-## Example usage
-Please see the [examples directory](examples/) for some simple programs using libifconfig.
-
 ## Mailing List Threads
 [2016-03-04: libifconfig: A C Api for ifconfig](https://lists.freebsd.org/pipermail/freebsd-net/2016-March/044837.html)  
 [2016-04-09: libifconfig: Initial code available, looking for feedback](https://lists.freebsd.org/pipermail/freebsd-net/2016-April/045022.html)
+
