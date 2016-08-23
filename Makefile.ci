@@ -12,3 +12,7 @@ buildlibinbase:
 	./tools/cptofbsdsrc.sh ./ ~/data/fbsdhead
 	cd ~/data/fbsdhead/lib/libifc
 	make
+buildwithgcc:
+	make -f Makefile.standalone CC=gcc
+buildwithclang:
+	make -f Makefile.standalone CC=clang

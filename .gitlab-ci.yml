@@ -10,16 +10,35 @@ stages:
  - test
  - release
 
-buildlib:
+buildlib_with_clang:
  stage: build
  tags: 
   - shell
   - freebsd
+  - clang
  script:
-  - make
+  - which clang
+  - clang --version
+  - make -f Makefile.ci buildwithclang
   - tree stage/libifc
  artifacts:
-  name: "libifc"
+  name: "libifc-clang"
+  paths:
+   - stage/libifc/
+
+buildlib_with_gcc:
+ stage: build
+ tags: 
+  - shell
+  - freebsd
+  - gcc
+ script:
+  - which gcc
+  - gcc --version
+  - make -f Makefile.ci buildwithgcc
+  - tree stage/libifc
+ artifacts:
+  name: "libifc-gcc"
   paths:
    - stage/libifc/
 

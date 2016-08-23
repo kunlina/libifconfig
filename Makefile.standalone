@@ -1,7 +1,7 @@
 default:
 	rm -Rf stage/libifc
 	mkdir -p stage/libifc
-	$(CC) -Wall -fPIC -shared -o stage/libifc/libifc.so src/libifc.c src/libifc_internal.c
+	$(CC) -std=gnu99 -Wall -Wextra -Werror -fPIC -shared -o stage/libifc/libifc.so src/libifc.c src/libifc_internal.c
 	cp src/libifc.h stage/libifc/
 clean:
 	rm -Rf stage

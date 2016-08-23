@@ -74,7 +74,7 @@
 
 
 libifc_handle_t *
-libifc_open()
+libifc_open(void)
 {
 	struct libifc_handle *h;
 
