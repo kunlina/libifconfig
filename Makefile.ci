@@ -7,11 +7,18 @@ createfreebsdtree:
 	cp src/* stage/freebsdsrc/lib/libifc/
 	cp Makefile.base stage/freebsdsrc/lib/libifc/Makefile
 	cp examples/* stage/freebsdsrc/examples/libifc/
-buildlibinbase:
+prepbuildinbase:
 	svnlite up ~/data/fbsdhead
 	./tools/cptofbsdsrc.sh ./ ~/data/fbsdhead
+
+buildlibinbase: prepbuildinbase
 	cd ~/data/fbsdhead/lib/libifc
 	make
+
+buildworlds:
+	cd ~/data/fbsdhead/
+	make worlds JFLAG=-j`sysctl -n hw.ncpu` DOING_TINDERBOX=YES TARGETS=${TARGETS}
+
 buildwithgcc:
 	make -f Makefile.standalone CC=gcc
 buildwithclang:
