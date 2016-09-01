@@ -36,3 +36,4 @@ stage/**
 
 # local dev envorinment stuff
 .vscode/**
+**/.vscode/**
