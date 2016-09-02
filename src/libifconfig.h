@@ -86,11 +86,13 @@ int ifconfig_get_description(ifconfig_handle_t *h, const char *name,
 int ifconfig_set_description(ifconfig_handle_t *h, const char *name,
     const char *newdescription);
 int ifconfig_unset_description(ifconfig_handle_t *h, const char *name);
-int ifconfig_set_name(ifconfig_handle_t *h, const char *name, const char *newname);
+int ifconfig_set_name(ifconfig_handle_t *h, const char *name,
+    const char *newname);
 int ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu);
 int ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu);
 
-int ifconfig_set_metric(ifconfig_handle_t *h, const char *name, const int metric);
+int ifconfig_set_metric(ifconfig_handle_t *h, const char *name,
+    const int metric);
 int ifconfig_get_metric(ifconfig_handle_t *h, const char *name, int *metric);
 
 int ifconfig_set_capability(ifconfig_handle_t *h, const char *name,

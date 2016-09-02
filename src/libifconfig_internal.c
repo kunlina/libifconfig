@@ -54,7 +54,6 @@ ifconfig_ioctlwrap_ret(ifconfig_handle_t *h, unsigned long request, int rcode)
 	return (rcode);
 }
 
-
 int
 ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
     unsigned long request, struct ifreq *ifr)
@@ -69,12 +68,12 @@ ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
 	return (ifconfig_ioctlwrap_ret(h, request, rcode));
 }
 
-
 /*
  * Function to get socket for the specified address family.
  * If the socket doesn't already exist, attempt to create it.
  */
-int ifconfig_socket(ifconfig_handle_t *h, const int addressfamily, int *s)
+int
+ifconfig_socket(ifconfig_handle_t *h, const int addressfamily, int *s)
 {
 	if (addressfamily > AF_MAX) {
 		h->error.errtype = SOCKET;

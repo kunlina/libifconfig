@@ -89,7 +89,6 @@ ifconfig_open(void)
 	return (h);
 }
 
-
 void
 ifconfig_close(ifconfig_handle_t *h)
 {
@@ -101,13 +100,11 @@ ifconfig_close(ifconfig_handle_t *h)
 	free(h);
 }
 
-
 ifconfig_errtype
 ifconfig_err_errtype(ifconfig_handle_t *h)
 {
 	return (h->error.errtype);
 }
-
 
 int
 ifconfig_err_errno(ifconfig_handle_t *h)
@@ -115,22 +112,23 @@ ifconfig_err_errno(ifconfig_handle_t *h)
 	return (h->error.errcode);
 }
 
-
 unsigned long
 ifconfig_err_ioctlreq(ifconfig_handle_t *h)
 {
 	return (h->error.ioctl_request);
 }
 
-
 int
-ifconfig_get_description(ifconfig_handle_t *h, const char *name, char **description)
+ifconfig_get_description(ifconfig_handle_t *h, const char *name,
+    char **description)
 {
 	struct ifreq ifr;
-	char *descr = NULL;
-	size_t descrlen = 64;
+	char *descr;
+	size_t descrlen;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	descr = NULL;
+	descrlen = 64;
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	for (;;) {
 		if ((descr = reallocf(descr, descrlen)) == NULL) {
@@ -164,7 +162,6 @@ ifconfig_get_description(ifconfig_handle_t *h, const char *name, char **descript
 	return (-1);
 }
 
-
 int
 ifconfig_set_description(ifconfig_handle_t *h, const char *name,
     const char *newdescription)
@@ -172,7 +169,7 @@ ifconfig_set_description(ifconfig_handle_t *h, const char *name,
 	struct ifreq ifr;
 	int desclen;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	desclen = strlen(newdescription);
 
 	/*
@@ -201,12 +198,12 @@ ifconfig_set_description(ifconfig_handle_t *h, const char *name,
 	return (0);
 }
 
-
-int ifconfig_unset_description(ifconfig_handle_t *h, const char *name)
+int
+ifconfig_unset_description(ifconfig_handle_t *h, const char *name)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_buffer.length = 0;
 	ifr.ifr_buffer.buffer = NULL;
@@ -217,13 +214,14 @@ int ifconfig_unset_description(ifconfig_handle_t *h, const char *name)
 	return (0);
 }
 
-
-int ifconfig_set_name(ifconfig_handle_t *h, const char *name, const char *newname)
+int
+ifconfig_set_name(ifconfig_handle_t *h, const char *name,
+    const char *newname)
 {
 	struct ifreq ifr;
 	char *tmpname;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	tmpname = strdup(newname);
 	if (tmpname == NULL) {
 		h->error.errtype = OTHER;
@@ -242,12 +240,12 @@ int ifconfig_set_name(ifconfig_handle_t *h, const char *name, const char *newnam
 	return (0);
 }
 
-
-int ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu)
+int
+ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_mtu = mtu;
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFMTU, &ifr) < 0) {
@@ -256,12 +254,12 @@ int ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu)
 	return (0);
 }
 
-
-int ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu)
+int
+ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFMTU, &ifr) == -1) {
 		return (-1);
@@ -270,12 +268,12 @@ int ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu)
 	return (0);
 }
 
-
-int ifconfig_set_metric(ifconfig_handle_t *h, const char *name, const int mtu)
+int
+ifconfig_set_metric(ifconfig_handle_t *h, const char *name, const int mtu)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_mtu = mtu;
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFMETRIC, &ifr) < 0) {
@@ -284,12 +282,12 @@ int ifconfig_set_metric(ifconfig_handle_t *h, const char *name, const int mtu)
 	return (0);
 }
 
-
-int ifconfig_get_metric(ifconfig_handle_t *h, const char *name, int *metric)
+int
+ifconfig_get_metric(ifconfig_handle_t *h, const char *name, int *metric)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFMETRIC, &ifr) == -1) {
 		return (-1);
@@ -298,16 +296,15 @@ int ifconfig_get_metric(ifconfig_handle_t *h, const char *name, int *metric)
 	return (0);
 }
 
-
-int ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
+int
+ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
     const int capability)
 {
 	struct ifreq ifr;
 	struct ifconfig_capabilities ifcap;
-	int flags;
-	int value;
+	int flags, value;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	if (ifconfig_get_capability(h, name, &ifcap) != 0) {
 		return (-1);
 	}
@@ -335,13 +332,13 @@ int ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
 	return (0);
 }
 
-
-int ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
+int
+ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
     struct ifconfig_capabilities *capability)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFCAP, &ifr) < 0) {
@@ -352,12 +349,12 @@ int ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
 	return (0);
 }
 
-
-int ifconfig_destroy_interface(ifconfig_handle_t *h, const char *name)
+int
+ifconfig_destroy_interface(ifconfig_handle_t *h, const char *name)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCIFDESTROY, &ifr) < 0) {
@@ -366,12 +363,13 @@ int ifconfig_destroy_interface(ifconfig_handle_t *h, const char *name)
 	return (0);
 }
 
-
-int ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
+int
+ifconfig_create_interface(ifconfig_handle_t *h, const char *name,
+    char **ifname)
 {
 	struct ifreq ifr;
 
-	memset(&ifr, 0, sizeof(struct ifreq));
+	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	/*
