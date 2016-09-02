@@ -26,6 +26,8 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * $FreeBSD$
  */
 
 #include <err.h>
@@ -53,20 +55,20 @@ int main(int argc, char *argv[])
 
 	printf("Interface name: %s\n", ifname);
 
-	libifc_handle_t *lifh = libifc_open();
-	if (libifc_destroy_interface(lifh, ifname) == 0) {
+	ifconfig_handle_t *lifh = ifconfig_open();
+	if (ifconfig_destroy_interface(lifh, ifname) == 0) {
 		printf("Successfully destroyed interface '%s'.", ifname);
-		libifc_close(lifh);
+		ifconfig_close(lifh);
 		lifh = NULL;
 		free(ifname);
 		return (0);
 	} else {
-		switch (libifc_err_errtype(lifh)) {
+		switch (ifconfig_err_errtype(lifh)) {
 		case SOCKET:
 			warnx("couldn't create socket. This shouldn't happen.\n");
 			break;
 		case IOCTL:
-			if (libifc_err_ioctlreq(lifh) == SIOCIFDESTROY) {
+			if (ifconfig_err_ioctlreq(lifh) == SIOCIFDESTROY) {
 				warnx(
 					"Failed to destroy interface (SIOCIFDESTROY)\n");
 			}
@@ -77,7 +79,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		libifc_close(lifh);
+		ifconfig_close(lifh);
 		lifh = NULL;
 		free(ifname);
 		return (-1);

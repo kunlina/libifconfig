@@ -26,6 +26,8 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * $FreeBSD$
  */
 
 #include <err.h>
@@ -53,21 +55,21 @@ int main(int argc, char *argv[])
 
 	printf("Requested interface name: %s\n", ifname);
 
-	libifc_handle_t *lifh = libifc_open();
-	if (libifc_create_interface(lifh, ifname, &ifactualname) == 0) {
+	ifconfig_handle_t *lifh = ifconfig_open();
+	if (ifconfig_create_interface(lifh, ifname, &ifactualname) == 0) {
 		printf("Successfully created interface '%s'\n", ifactualname);
-		libifc_close(lifh);
+		ifconfig_close(lifh);
 		lifh = NULL;
 		free(ifname);
 		free(ifactualname);
 		return (0);
 	} else {
-		switch (libifc_err_errtype(lifh)) {
+		switch (ifconfig_err_errtype(lifh)) {
 		case SOCKET:
 			warnx("couldn't create socket. This shouldn't happen.\n");
 			break;
 		case IOCTL:
-			if (libifc_err_ioctlreq(lifh) == SIOCIFCREATE2) {
+			if (ifconfig_err_ioctlreq(lifh) == SIOCIFCREATE2) {
 				warnx(
 					"Failed to create interface (SIOCIFCREATE2)\n");
 			}
@@ -77,12 +79,12 @@ int main(int argc, char *argv[])
 				"This is a thorough example accommodating for temporary"
 				" 'not implemented yet' errors. That's likely what happened"
 				" now. If not, your guess is as good as mine. ;)"
-				" Error code: %d\n", libifc_err_errno(
+				" Error code: %d\n", ifconfig_err_errno(
 					lifh));
 			break;
 		}
 
-		libifc_close(lifh);
+		ifconfig_close(lifh);
 		lifh = NULL;
 		free(ifname);
 		free(ifactualname);

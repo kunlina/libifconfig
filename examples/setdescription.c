@@ -26,6 +26,8 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * $FreeBSD$
  */
 
 #include <err.h>
@@ -52,27 +54,27 @@ int main(int argc, char *argv[])
 
 	printf("Interface name: %s\n", ifname);
 
-	libifc_handle_t *lifh = libifc_open();
-	if (libifc_get_description(lifh, ifname, &curdescr) == 0) {
+	ifconfig_handle_t *lifh = ifconfig_open();
+	if (ifconfig_get_description(lifh, ifname, &curdescr) == 0) {
 		printf("Old description: %s\n", curdescr);
 	}
 
 	printf("New description: %s\n\n", ifdescr);
 
-	if (libifc_set_description(lifh, ifname, ifdescr) == 0) {
+	if (ifconfig_set_description(lifh, ifname, ifdescr) == 0) {
 		printf("New description successfully set.\n");
 	} else {
-		switch (libifc_err_errtype(lifh)) {
+		switch (ifconfig_err_errtype(lifh)) {
 		case SOCKET:
-			err(libifc_err_errno(lifh), "Socket error");
+			err(ifconfig_err_errno(lifh), "Socket error");
 			break;
 		case IOCTL:
-			err(libifc_err_errno(
+			err(ifconfig_err_errno(
 				    lifh), "IOCTL(%lu) error",
-			    libifc_err_ioctlreq(lifh));
+			    ifconfig_err_ioctlreq(lifh));
 			break;
 		case OTHER:
-			err(libifc_err_errno(lifh), "Other error");
+			err(ifconfig_err_errno(lifh), "Other error");
 			break;
 		}
 	}
@@ -84,6 +86,6 @@ int main(int argc, char *argv[])
 	ifdescr = NULL;
 	curdescr = NULL;
 
-	libifc_close(lifh);
+	ifconfig_close(lifh);
 	return (0);
 }
