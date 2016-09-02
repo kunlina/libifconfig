@@ -12,10 +12,6 @@
  * this list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
  *
- * 3. Neither the name of the copyright holder nor the names of its contributors
- * may be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -43,20 +39,25 @@
 #include "libifconfig.h" // Needed for ifconfig_errstate
 #include "libifconfig_internal.h"
 
+
 int
 ifconfig_ioctlwrap_ret(ifconfig_handle_t *h, unsigned long request, int rcode)
 {
+
 	if (rcode != 0) {
 		h->error.errtype = IOCTL;
 		h->error.ioctl_request = request;
 		h->error.errcode = errno;
 	}
+
 	return (rcode);
 }
 
 int
-ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
-    unsigned long request, struct ifreq *ifr)
+ifconfig_ioctlwrap(ifconfig_handle_t *h,
+    const int addressfamily,
+    unsigned long request,
+    struct ifreq *ifr)
 {
 	int s;
 
@@ -75,6 +76,7 @@ ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
 int
 ifconfig_socket(ifconfig_handle_t *h, const int addressfamily, int *s)
 {
+
 	if (addressfamily > AF_MAX) {
 		h->error.errtype = SOCKET;
 		h->error.errcode = EINVAL;
