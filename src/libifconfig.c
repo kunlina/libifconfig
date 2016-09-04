@@ -114,6 +114,7 @@ ifconfig_get_description(ifconfig_handle_t *h, const char *name,
 		ifr.ifr_buffer.buffer = descr;
 		ifr.ifr_buffer.length = descrlen;
 		if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFDESCR, &ifr) != 0) {
+			free(descr);
 			return (-1);
 		}
 
