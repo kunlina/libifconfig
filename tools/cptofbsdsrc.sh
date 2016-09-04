@@ -23,14 +23,13 @@ fi
 # Clean things!
 echo "Reverting destination tree"
 svn revert -R -q "${svndir}"
-rm -Rf "${svndir}/lib/libifc"
-rm -Rf "${svndir}/share/examples/libifc"
 rm -Rf "${svndir}/lib/libifconfig"
 rm -Rf "${svndir}/share/examples/libifconfig"
 
 echo "Copying things"
 # Copy things!
 cp -R "${gitdir}/src" "${svndir}/lib/libifconfig"
+
 cp "${gitdir}/Makefile.base" "${svndir}/lib/libifconfig/Makefile"
 # Ugly hack to not copy example_ executables.
 cd "${gitdir}/examples"
@@ -38,14 +37,15 @@ make clean
 cp -Rf  "${gitdir}/examples" "${svndir}/share/examples/libifconfig"
 
 echo "Patching things"
-patch -p0 -d "${svndir}" < "${gitdir}tools/bsdbase_lib.patch"
-rm "${svndir}/share/mk/bsd.libnames.mk.orig"
-rm "${svndir}/share/mk/src.libnames.mk.orig"
+#patch -p0 -d "${svndir}" < "${gitdir}tools/bsdbase_lib.patch"
+#rm "${svndir}/lib/Makefile.orig"
+#rm "${svndir}/share/mk/bsd.libnames.mk.orig"
+#rm "${svndir}/share/mk/src.libnames.mk.orig"
 svn add "${svndir}/lib/libifconfig"
 svn add "${svndir}/share/examples/libifconfig"
 
-echo "Storing diff as ~/libifc.patch"
+echo "Storing diff as ~/libifconfig.patch"
 cd "${svndir}"
-svn diff --diff-cmd=diff -x -U999999 . > ~/libifc.patch
+svn diff --diff-cmd=diff -x -U999999 . > ~/libifconfig.patch
 
 echo "End of script. Yay."

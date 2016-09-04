@@ -39,13 +39,13 @@
 int
 main(int argc, char *argv[])
 {
+	char *ifname, *ifactualname;
+
 	if (argc != 2) {
 		errx(EINVAL, "Invalid number of arguments."
 		    " Only one argument is accepted, and it should be the name"
 		    " of the interface to be created.");
 	}
-
-	char *ifname, *ifactualname;
 
 	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
@@ -60,31 +60,31 @@ main(int argc, char *argv[])
 		free(ifname);
 		free(ifactualname);
 		return (0);
-	} else {
-		switch (ifconfig_err_errtype(lifh)) {
-		case SOCKET:
-			warnx("couldn't create socket. This shouldn't happen.\n");
-			break;
-		case IOCTL:
-			if (ifconfig_err_ioctlreq(lifh) == SIOCIFCREATE2) {
-				warnx(
-					"Failed to create interface (SIOCIFCREATE2)\n");
-			}
-			break;
-		default:
-			warnx(
-				"This is a thorough example accommodating for temporary"
-				" 'not implemented yet' errors. That's likely what happened"
-				" now. If not, your guess is as good as mine. ;)"
-				" Error code: %d\n", ifconfig_err_errno(
-					lifh));
-			break;
-		}
-
-		ifconfig_close(lifh);
-		lifh = NULL;
-		free(ifname);
-		free(ifactualname);
-		return (-1);
 	}
+
+	switch (ifconfig_err_errtype(lifh)) {
+	case SOCKET:
+		warnx("couldn't create socket. This shouldn't happen.\n");
+		break;
+	case IOCTL:
+		if (ifconfig_err_ioctlreq(lifh) == SIOCIFCREATE2) {
+			warnx(
+				"Failed to create interface (SIOCIFCREATE2)\n");
+		}
+		break;
+	default:
+		warnx(
+			"This is a thorough example accommodating for temporary"
+			" 'not implemented yet' errors. That's likely what happened"
+			" now. If not, your guess is as good as mine. ;)"
+			" Error code: %d\n", ifconfig_err_errno(
+				lifh));
+		break;
+	}
+
+	ifconfig_close(lifh);
+	lifh = NULL;
+	free(ifname);
+	free(ifactualname);
+	return (-1);
 }

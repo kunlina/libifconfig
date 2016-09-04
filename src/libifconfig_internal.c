@@ -54,10 +54,8 @@ ifconfig_ioctlwrap_ret(ifconfig_handle_t *h, unsigned long request, int rcode)
 }
 
 int
-ifconfig_ioctlwrap(ifconfig_handle_t *h,
-    const int addressfamily,
-    unsigned long request,
-    struct ifreq *ifr)
+ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
+    unsigned long request, struct ifreq *ifr)
 {
 	int s;
 

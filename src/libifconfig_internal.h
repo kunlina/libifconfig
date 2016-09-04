@@ -48,6 +48,7 @@ struct errstate {
 	 */
 	int errcode;
 };
+
 struct ifconfig_handle {
 	struct errstate error;
 	int sockets[AF_MAX + 1];
@@ -75,12 +76,9 @@ struct ifconfig_handle {
 int ifconfig_socket(ifconfig_handle_t *h, const int addressfamily, int *s);
 
 /** Function used by other wrapper functions to populate _errstate when appropriate.*/
-int ifconfig_ioctlwrap_ret(ifconfig_handle_t *h,
-    unsigned long request,
+int ifconfig_ioctlwrap_ret(ifconfig_handle_t *h, unsigned long request,
     int rcode);
 
 /** Function to wrap ioctl() and automatically populate ifconfig_errstate when appropriate.*/
-int ifconfig_ioctlwrap(ifconfig_handle_t *h,
-    const int addressfamily,
-    unsigned long request,
-    struct ifreq *ifr);
+int ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
+    unsigned long request, struct ifreq *ifr);

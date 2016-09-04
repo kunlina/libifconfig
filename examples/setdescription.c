@@ -37,13 +37,14 @@
 int
 main(int argc, char *argv[])
 {
+	char *ifname, *ifdescr, *curdescr;
+
 	if (argc != 3) {
 		errx(EINVAL, "Invalid number of arguments."
 		    " First argument should be interface name, second argument"
 		    " should be the description to set.");
 	}
 
-	char *ifname, *ifdescr, *curdescr;
 	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
 	ifdescr = strdup(argv[2]);

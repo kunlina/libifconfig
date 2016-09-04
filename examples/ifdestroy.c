@@ -39,13 +39,13 @@
 int
 main(int argc, char *argv[])
 {
+	char *ifname;
+
 	if (argc != 2) {
 		errx(EINVAL, "Invalid number of arguments."
 		    " Only one argument is accepted, and it should be the name"
 		    " of the interface to be destroyed.");
 	}
-
-	char *ifname;
 
 	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
@@ -59,26 +59,26 @@ main(int argc, char *argv[])
 		lifh = NULL;
 		free(ifname);
 		return (0);
-	} else {
-		switch (ifconfig_err_errtype(lifh)) {
-		case SOCKET:
-			warnx("couldn't create socket. This shouldn't happen.\n");
-			break;
-		case IOCTL:
-			if (ifconfig_err_ioctlreq(lifh) == SIOCIFDESTROY) {
-				warnx(
-					"Failed to destroy interface (SIOCIFDESTROY)\n");
-			}
-			break;
-		default:
-			warnx(
-				"Should basically never end up here in this example.\n");
-			break;
-		}
-
-		ifconfig_close(lifh);
-		lifh = NULL;
-		free(ifname);
-		return (-1);
 	}
+
+	switch (ifconfig_err_errtype(lifh)) {
+	case SOCKET:
+		warnx("couldn't create socket. This shouldn't happen.\n");
+		break;
+	case IOCTL:
+		if (ifconfig_err_ioctlreq(lifh) == SIOCIFDESTROY) {
+			warnx(
+				"Failed to destroy interface (SIOCIFDESTROY)\n");
+		}
+		break;
+	default:
+		warnx(
+			"Should basically never end up here in this example.\n");
+		break;
+	}
+
+	ifconfig_close(lifh);
+	lifh = NULL;
+	free(ifname);
+	return (-1);
 }

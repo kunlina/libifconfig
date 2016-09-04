@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1983, 1993
  *  The Regents of the University of California.  All rights reserved.
- * Copyright (c) 2016, Marie Helene Kvello-Aune
+ * Copyright (c) 2016, Marie Helene Kvello-Aune.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,9 +30,8 @@
  * $FreeBSD$
  */
 
-#include <sys/ioctl.h>
-
 #include <net/if.h>
+#include <sys/ioctl.h>
 
 #include <err.h>
 #include <errno.h>

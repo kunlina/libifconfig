@@ -38,6 +38,7 @@ typedef enum {
  */
 struct ifconfig_handle;
 typedef struct ifconfig_handle   ifconfig_handle_t;
+
 struct ifconfig_capabilities {
 	/** Current capabilities (ifconfig prints this as 'options')*/
 	int curcap;
@@ -74,26 +75,21 @@ int ifconfig_err_errno(ifconfig_handle_t *h);
 
 /** If error type was IOCTL, this identifies which request failed. */
 unsigned long ifconfig_err_ioctlreq(ifconfig_handle_t *h);
-int ifconfig_get_description(ifconfig_handle_t *h,
-    const char *name,
+int ifconfig_get_description(ifconfig_handle_t *h, const char *name,
     char **description);
-int ifconfig_set_description(ifconfig_handle_t *h,
-    const char *name,
+int ifconfig_set_description(ifconfig_handle_t *h, const char *name,
     const char *newdescription);
 int ifconfig_unset_description(ifconfig_handle_t *h, const char *name);
-int ifconfig_set_name(ifconfig_handle_t *h,
-    const char *name,
+int ifconfig_set_name(ifconfig_handle_t *h, const char *name,
     const char *newname);
 int ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu);
 int ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu);
 int ifconfig_set_metric(ifconfig_handle_t *h, const char *name,
     const int metric);
 int ifconfig_get_metric(ifconfig_handle_t *h, const char *name, int *metric);
-int ifconfig_set_capability(ifconfig_handle_t *h,
-    const char *name,
+int ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
     const int capability);
-int ifconfig_get_capability(ifconfig_handle_t *h,
-    const char *name,
+int ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
     struct ifconfig_capabilities *capability);
 
 /** Destroy a virtual interface
@@ -105,6 +101,5 @@ int ifconfig_destroy_interface(ifconfig_handle_t *h, const char *name);
  * @param name Name of interface to create. Example: bridge or bridge42
  * @param name ifname Is set to actual name of created interface
  */
-int ifconfig_create_interface(ifconfig_handle_t *h,
-    const char *name,
+int ifconfig_create_interface(ifconfig_handle_t *h, const char *name,
     char **ifname);
