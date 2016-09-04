@@ -12,10 +12,6 @@
  * this list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
  *
- * 3. Neither the name of the copyright holder nor the names of its contributors
- * may be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,6 +22,8 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * $FreeBSD$
  */
 
 #include <err.h>
@@ -33,18 +31,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libifc.h>
+#include <libifconfig.h>
 
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
+	char *ifname, *ifdescr, *curdescr;
+
 	if (argc != 3) {
 		errx(EINVAL, "Invalid number of arguments."
 		    " First argument should be interface name, second argument"
 		    " should be the description to set.");
 	}
 
-	char *ifname, *ifdescr, *curdescr;
 	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
 	ifdescr = strdup(argv[2]);
@@ -52,27 +52,27 @@ int main(int argc, char *argv[])
 
 	printf("Interface name: %s\n", ifname);
 
-	libifc_handle_t *lifh = libifc_open();
-	if (libifc_get_description(lifh, ifname, &curdescr) == 0) {
+	ifconfig_handle_t *lifh = ifconfig_open();
+	if (ifconfig_get_description(lifh, ifname, &curdescr) == 0) {
 		printf("Old description: %s\n", curdescr);
 	}
 
 	printf("New description: %s\n\n", ifdescr);
 
-	if (libifc_set_description(lifh, ifname, ifdescr) == 0) {
+	if (ifconfig_set_description(lifh, ifname, ifdescr) == 0) {
 		printf("New description successfully set.\n");
 	} else {
-		switch (libifc_err_errtype(lifh)) {
+		switch (ifconfig_err_errtype(lifh)) {
 		case SOCKET:
-			err(libifc_err_errno(lifh), "Socket error");
+			err(ifconfig_err_errno(lifh), "Socket error");
 			break;
 		case IOCTL:
-			err(libifc_err_errno(
+			err(ifconfig_err_errno(
 				    lifh), "IOCTL(%lu) error",
-			    libifc_err_ioctlreq(lifh));
+			    ifconfig_err_ioctlreq(lifh));
 			break;
 		case OTHER:
-			err(libifc_err_errno(lifh), "Other error");
+			err(ifconfig_err_errno(lifh), "Other error");
 			break;
 		}
 	}
@@ -84,6 +84,6 @@ int main(int argc, char *argv[])
 	ifdescr = NULL;
 	curdescr = NULL;
 
-	libifc_close(lifh);
+	ifconfig_close(lifh);
 	return (0);
 }

@@ -12,9 +12,6 @@
  * this list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
  *
- * 3. Neither the name of the copyright holder nor the names of its contributors
- * may be used to endorse or promote products derived from this software without
- * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -26,6 +23,8 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * $FreeBSD$
  */
 
 #include <err.h>
@@ -35,19 +34,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libifc.h>
+#include <libifconfig.h>
 
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
+	char *ifname, *ptr;
+	int mtu;
+
 	if (argc != 3) {
 		errx(EINVAL, "Invalid number of arguments."
 		    " First argument should be interface name, second argument"
 		    " should be the MTU to set.");
 	}
-
-	char *ifname, *ptr;
-	int mtu;
 
 	/* We have a static number of arguments. Therefore we can do it simple. */
 	ifname = strdup(argv[1]);
@@ -56,37 +56,37 @@ int main(int argc, char *argv[])
 	printf("Interface name: %s\n", ifname);
 	printf("New MTU: %d", mtu);
 
-	libifc_handle_t *lifh = libifc_open();
-	if (libifc_set_mtu(lifh, ifname, mtu) == 0) {
+	ifconfig_handle_t *lifh = ifconfig_open();
+	if (ifconfig_set_mtu(lifh, ifname, mtu) == 0) {
 		printf("Successfully changed MTU of %s to %d\n", ifname, mtu);
-		libifc_close(lifh);
+		ifconfig_close(lifh);
 		lifh = NULL;
 		free(ifname);
 		return (0);
-	} else {
-		switch (libifc_err_errtype(lifh)) {
-		case SOCKET:
-			warnx("couldn't create socket. This shouldn't happen.\n");
-			break;
-		case IOCTL:
-			if (libifc_err_ioctlreq(lifh) == SIOCSIFMTU) {
-				warnx("Failed to set MTU (SIOCSIFMTU)\n");
-			} else {
-				warnx(
-					"Failed to set MTU due to error in unexpected ioctl() call %lu. Error code: %i.\n",
-					libifc_err_ioctlreq(lifh),
-					libifc_err_errno(lifh));
-			}
-			break;
-		default:
-			warnx(
-				"Should basically never end up here in this example.\n");
-			break;
-		}
-
-		libifc_close(lifh);
-		lifh = NULL;
-		free(ifname);
-		return (-1);
 	}
+
+	switch (ifconfig_err_errtype(lifh)) {
+	case SOCKET:
+		warnx("couldn't create socket. This shouldn't happen.\n");
+		break;
+	case IOCTL:
+		if (ifconfig_err_ioctlreq(lifh) == SIOCSIFMTU) {
+			warnx("Failed to set MTU (SIOCSIFMTU)\n");
+		} else {
+			warnx(
+				"Failed to set MTU due to error in unexpected ioctl() call %lu. Error code: %i.\n",
+				ifconfig_err_ioctlreq(lifh),
+				ifconfig_err_errno(lifh));
+		}
+		break;
+	default:
+		warnx(
+			"Should basically never end up here in this example.\n");
+		break;
+	}
+
+	ifconfig_close(lifh);
+	lifh = NULL;
+	free(ifname);
+	return (-1);
 }

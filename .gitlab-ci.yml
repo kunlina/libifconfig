@@ -1,8 +1,5 @@
 before_script:
  - ln -s ./Makefile.standalone Makefile
- - which uncrustify
- - which doxygen
- - which tree
  - uname -a
 
 stages:
