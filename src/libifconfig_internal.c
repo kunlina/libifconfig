@@ -26,15 +26,14 @@
  * $FreeBSD$
  */
 
+#include <sys/ioctl.h>
 
 #include <net/if.h>
 
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
-
 
 #include "libifconfig.h" // Needed for ifconfig_errstate
 #include "libifconfig_internal.h"
