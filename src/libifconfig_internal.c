@@ -38,20 +38,6 @@
 #include "libifconfig.h" // Needed for ifconfig_errstate
 #include "libifconfig_internal.h"
 
-
-int
-ifconfig_ioctlwrap_ret(ifconfig_handle_t *h, unsigned long request, int rcode)
-{
-
-	if (rcode != 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = request;
-		h->error.errcode = errno;
-	}
-
-	return (rcode);
-}
-
 int
 ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
     unsigned long request, struct ifreq *ifr)
@@ -62,8 +48,14 @@ ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
 		return (-1);
 	}
 
-	int rcode = ioctl(s, request, ifr);
-	return (ifconfig_ioctlwrap_ret(h, request, rcode));
+	if (ioctl(s, request, ifr) != 0) {
+		h->error.errtype = IOCTL;
+		h->error.ioctl_request = request;
+		h->error.errcode = errno;
+		return (-1);
+	}
+
+	return (0);
 }
 
 /*
