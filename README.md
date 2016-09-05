@@ -21,9 +21,9 @@ Work still needs to be done in the following areas:
 
 Feedback on API design decisions, code quality, etc are very welcome. If your feedback comes with (or in the form of) a pull request, that's great! :)
 
-__How do I use the state object (libifc_handle_t)__
+__How do I use the state object (ifconfig_handle_t)__
 
-You need to create and dispose of a state object (libifc_handle_t).
+You need to create and dispose of a state object (ifconfig_handle_t).
 It is the applications discretion how to use/track state objects,
 but only one thread should use a given state object at the same time.
 
@@ -32,12 +32,17 @@ to prevent multiple threads from using the same state object at the same time.
 
 ```
 // Create a state object
-libifc_handle_t *lifh = libifc_open();
+ifconfig_handle_t *lifh = ifconfig_open();
+
+if (lifh == NULL) {
+    errx("Failed to open libifconfig handle.");
+    return (-1);
+}
 
 // Do stuff
 
 // Dispose of the state object
-libifc_close(lifh);
+ifconfig_close(lifh);
 lifh = NULL;
 ```
 

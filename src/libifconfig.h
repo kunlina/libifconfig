@@ -50,9 +50,13 @@ struct ifconfig_capabilities {
  * Example usage:
  *{@code
  * // Create state object
- * ifconfig_handle_t *lifh = ifconfig_open();
+ * ifconfig_handle_t *lifh;
+ * lifh = ifconfig_open();
+ * if (lifh == NULL) {
+ *     // Handle error
+ * }
  *
- * // Do stuff with it
+ * // Do stuff with the handle
  *
  * // Dispose of the state object
  * ifconfig_close(lifh);

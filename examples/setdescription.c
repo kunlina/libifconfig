@@ -38,6 +38,7 @@ int
 main(int argc, char *argv[])
 {
 	char *ifname, *ifdescr, *curdescr;
+	ifconfig_handle_t *lifh;
 
 	if (argc != 3) {
 		errx(EINVAL, "Invalid number of arguments."
@@ -52,7 +53,12 @@ main(int argc, char *argv[])
 
 	printf("Interface name: %s\n", ifname);
 
-	ifconfig_handle_t *lifh = ifconfig_open();
+	lifh = ifconfig_open();
+	if (lifh == NULL) {
+		errx("Failed to open libifconfig handle.");
+		return (-1);
+	}
+
 	if (ifconfig_get_description(lifh, ifname, &curdescr) == 0) {
 		printf("Old description: %s\n", curdescr);
 	}

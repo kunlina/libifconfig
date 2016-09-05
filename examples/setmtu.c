@@ -42,6 +42,7 @@ main(int argc, char *argv[])
 {
 	char *ifname, *ptr;
 	int mtu;
+	ifconfig_handle_t *lifh;
 
 	if (argc != 3) {
 		errx(EINVAL, "Invalid number of arguments."
@@ -56,7 +57,12 @@ main(int argc, char *argv[])
 	printf("Interface name: %s\n", ifname);
 	printf("New MTU: %d", mtu);
 
-	ifconfig_handle_t *lifh = ifconfig_open();
+	lifh = ifconfig_open();
+	if (lifh == NULL) {
+		errx("Failed to open libifconfig handle.");
+		return (-1);
+	}
+
 	if (ifconfig_set_mtu(lifh, ifname, mtu) == 0) {
 		printf("Successfully changed MTU of %s to %d\n", ifname, mtu);
 		ifconfig_close(lifh);

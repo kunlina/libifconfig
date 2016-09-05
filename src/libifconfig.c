@@ -49,13 +49,19 @@
 ifconfig_handle_t *
 ifconfig_open(void)
 {
-	struct ifconfig_handle *h;
+	ifconfig_handle_t *h;
 
 	h = calloc(1, sizeof(*h));
+
+	if (h == NULL) {
+		return NULL;
+	}
+
 	for (int i = 0; i <= AF_MAX; i++) {
 		h->sockets[i] = -1;
 	}
-	return (h);
+
+	return (0);
 }
 
 void
@@ -122,6 +128,13 @@ ifconfig_get_description(ifconfig_handle_t *h, const char *name,
 			if (strlen(descr) > 0) {
 				*description = strdup(descr);
 				free(descr);
+
+				if (description == NULL) {
+					h->error.errtype = OTHER;
+					h->error.errcode = ENOMEM;
+					return (-1);
+				}
+
 				return (0);
 			}
 		} else if (ifr.ifr_buffer.length > descrlen) {
@@ -387,5 +400,11 @@ ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 	}
 
 	*ifname = strdup(ifr.ifr_name);
+	if (ifname == NULL) {
+		h->error.errtype = OTHER;
+		h->error.errcode = ENOMEM;
+		return (-1);
+	}
+
 	return (0);
 }
