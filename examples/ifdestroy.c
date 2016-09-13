@@ -40,6 +40,7 @@ int
 main(int argc, char *argv[])
 {
 	char *ifname;
+	ifconfig_handle_t *lifh;
 
 	if (argc != 2) {
 		errx(EINVAL, "Invalid number of arguments."
@@ -52,7 +53,12 @@ main(int argc, char *argv[])
 
 	printf("Interface name: %s\n", ifname);
 
-	ifconfig_handle_t *lifh = ifconfig_open();
+	lifh = ifconfig_open();
+	if (lifh == NULL) {
+		errx("Failed to open libifconfig handle.");
+		return (-1);
+	}
+
 	if (ifconfig_destroy_interface(lifh, ifname) == 0) {
 		printf("Successfully destroyed interface '%s'.", ifname);
 		ifconfig_close(lifh);
