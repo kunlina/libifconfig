@@ -54,7 +54,7 @@ ifconfig_open(void)
 	h = calloc(1, sizeof(*h));
 
 	if (h == NULL) {
-		return NULL;
+		return (NULL);
 	}
 
 	for (int i = 0; i <= AF_MAX; i++) {
