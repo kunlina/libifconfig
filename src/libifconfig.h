@@ -107,14 +107,15 @@ int ifconfig_destroy_interface(ifconfig_handle_t *h, const char *name);
  */
 int ifconfig_create_interface(ifconfig_handle_t *h, const char *name,
     char **ifname);
+
 /** Creates a (virtual) interface
  * @param name Name of interface to create. Example: vlan0 or ix0.50
  * @param name ifname Is set to actual name of created interface
  * @param vlandev Name of interface to attach to
  * @param vlanid VLAN ID/Tag. Must not be 0.
  */
-int libifc_create_interface_vlan(libifc_handle_t *h, const char *name,
+int ifconfig_create_interface_vlan(ifconfig_handle_t *h, const char *name,
     const char **ifname, const char *vlandev, const unsigned long vlanid);
 
-int libifc_set_vlantag(libifc_handle_t *h, const char *name,
+int ifconfig_set_vlantag(ifconfig_handle_t *h, const char *name,
     const char *vlandev, const unsigned long vlantag);
