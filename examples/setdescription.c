@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 
 	lifh = ifconfig_open();
 	if (lifh == NULL) {
-		errx("Failed to open libifconfig handle.");
+		errx(ENOMEM, "Failed to open libifconfig handle.");
 		return (-1);
 	}
 
