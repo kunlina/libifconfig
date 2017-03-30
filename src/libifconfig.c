@@ -59,12 +59,11 @@ ifconfig_open(void)
 	if (h == NULL) {
 		return (NULL);
 	}
-
 	for (int i = 0; i <= AF_MAX; i++) {
 		h->sockets[i] = -1;
 	}
 
-	return (0);
+	return (h);
 }
 
 void
@@ -415,7 +414,7 @@ ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 
 int
 ifconfig_create_interface_vlan(ifconfig_handle_t *h, const char *name,
-    const char **ifname, const char *vlandev, const unsigned long vlantag)
+    char **ifname, const char *vlandev, const unsigned short vlantag)
 {
 	struct ifreq ifr;
 	struct vlanreq params;
@@ -425,6 +424,7 @@ ifconfig_create_interface_vlan(ifconfig_handle_t *h, const char *name,
 		return (-1);
 	}
 
+	bzero(&params, sizeof(params));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	params.vlr_tag = vlantag;
 	(void)strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
@@ -441,25 +441,14 @@ ifconfig_create_interface_vlan(ifconfig_handle_t *h, const char *name,
 
 int
 ifconfig_set_vlantag(ifconfig_handle_t *h, const char *name,
-    const char *vlandev, const unsigned long vlantag)
+    const char *vlandev, const unsigned short vlantag)
 {
 	struct ifreq ifr;
-	struct vlanreq vreq;
-	struct vlanreq params =
-	{
-		.vlr_tag	= vlantag,
-	};
+	struct vlanreq params;
 
+	bzero(&params, sizeof(params));
+	params.vlr_tag = vlantag;
 	strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
-
-
-	// TODO: Refactor the following
-	bzero((char *)&vreq, sizeof(vreq));
-	ifr.ifr_data = (caddr_t)&vreq;
-
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGETVLAN, &ifr) == 0) {
-		return (-1);
-	}
 
 	ifr.ifr_data = (caddr_t)&params;
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
