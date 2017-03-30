@@ -42,9 +42,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <net/if_vlan_var.h>
+
 #include "libifconfig.h"
 #include "libifconfig_internal.h"
 
+#define NOTAG    ((u_short) -1)
 
 ifconfig_handle_t *
 ifconfig_open(void)
@@ -56,7 +59,6 @@ ifconfig_open(void)
 	if (h == NULL) {
 		return (NULL);
 	}
-
 	for (int i = 0; i <= AF_MAX; i++) {
 		h->sockets[i] = -1;
 	}
@@ -376,6 +378,7 @@ ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
+
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
 	/*
@@ -406,5 +409,51 @@ ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 		return (-1);
 	}
 
+	return (0);
+}
+
+int
+ifconfig_create_interface_vlan(ifconfig_handle_t *h, const char *name,
+    char **ifname, const char *vlandev, const unsigned short vlantag)
+{
+	struct ifreq ifr;
+	struct vlanreq params;
+
+	if ((vlantag == NOTAG) || (vlandev[0] == '\0')) {
+		// TODO: Add proper error tracking here
+		return (-1);
+	}
+
+	bzero(&params, sizeof(params));
+	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+	params.vlr_tag = vlantag;
+	(void)strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
+	ifr.ifr_data = (caddr_t)&params;
+
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCIFCREATE2, &ifr) < 0) {
+		// TODO: Add proper error tracking here
+		return (-1);
+	}
+
+	*ifname = strdup(ifr.ifr_name);
+	return (0);
+}
+
+int
+ifconfig_set_vlantag(ifconfig_handle_t *h, const char *name,
+    const char *vlandev, const unsigned short vlantag)
+{
+	struct ifreq ifr;
+	struct vlanreq params;
+
+	bzero(&params, sizeof(params));
+	params.vlr_tag = vlantag;
+	strlcpy(params.vlr_parent, vlandev, sizeof(params.vlr_parent));
+
+	ifr.ifr_data = (caddr_t)&params;
+	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSETVLAN, &ifr) == -1) {
+		return (-1);
+	}
 	return (0);
 }
