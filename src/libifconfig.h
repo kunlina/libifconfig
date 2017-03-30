@@ -115,7 +115,7 @@ int ifconfig_create_interface(ifconfig_handle_t *h, const char *name,
  * @param vlanid VLAN ID/Tag. Must not be 0.
  */
 int ifconfig_create_interface_vlan(ifconfig_handle_t *h, const char *name,
-    char **ifname, const char *vlandev, const unsigned long vlanid);
+    char **ifname, const char *vlandev, const unsigned short vlantag);
 
 int ifconfig_set_vlantag(ifconfig_handle_t *h, const char *name,
-    const char *vlandev, const unsigned long vlantag);
+    const char *vlandev, const unsigned short vlantag);
