@@ -61,7 +61,7 @@ ifconfig_open(void)
 		h->sockets[i] = -1;
 	}
 
-	return (0);
+	return (h);
 }
 
 void
