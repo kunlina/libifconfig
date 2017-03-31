@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Marie Helene Kvello-Aune
+ * Copyright (c) 2016-2017, Marie Helene Kvello-Aune
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
