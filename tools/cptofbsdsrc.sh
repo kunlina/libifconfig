@@ -21,10 +21,11 @@ if [ "${stuff}" != "${expecteduuid}" ]; then
 fi
 
 # Clean things!
-echo "Reverting destination tree"
+echo "Reverting destination tree. Press any key to continue..."
+read discardtext
 svn revert -R -q "${svndir}"
-rm -Rf "${svndir}/lib/libifconfig"
-rm -Rf "${svndir}/share/examples/libifconfig"
+svn remove --force -q "${svndir}/lib/libifconfig"
+svn remove --force -q "${svndir}/share/examples/libifconfig"
 
 echo "Copying things"
 # Copy things!
@@ -32,15 +33,10 @@ cp -R "${gitdir}/src" "${svndir}/lib/libifconfig"
 
 cp "${gitdir}/Makefile.base" "${svndir}/lib/libifconfig/Makefile"
 # Ugly hack to not copy example_ executables.
-cd "${gitdir}/examples"
-make clean
-cp -Rf  "${gitdir}/examples" "${svndir}/share/examples/libifconfig"
+make -C "${gitdir}/examples" clean
+cp -Rf "${gitdir}/examples" "${svndir}/share/examples/libifconfig"
 
-echo "Patching things"
-#patch -p0 -d "${svndir}" < "${gitdir}tools/bsdbase_lib.patch"
-#rm "${svndir}/lib/Makefile.orig"
-#rm "${svndir}/share/mk/bsd.libnames.mk.orig"
-#rm "${svndir}/share/mk/src.libnames.mk.orig"
+
 svn add "${svndir}/lib/libifconfig"
 svn add "${svndir}/share/examples/libifconfig"
 
