@@ -52,7 +52,12 @@ struct errstate {
 struct ifconfig_handle {
 	struct errstate error;
 	int sockets[AF_MAX + 1];
+	/** Cached output of getifaddrs */
+	struct ifaddrs *ifap;
 };
+
+/* Fetch the list of interface addrs, if it hasn't already been fetched */
+int ifconfig_getifaddrs(ifconfig_handle_t *h);
 
 /**
  * Retrieves socket for address family <paramref name="addressfamily"> from

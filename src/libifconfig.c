@@ -37,6 +37,7 @@
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <ifaddrs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -75,6 +76,7 @@ ifconfig_close(ifconfig_handle_t *h)
 			(void)close(h->sockets[i]);
 		}
 	}
+	freeifaddrs(h->ifap);
 	free(h);
 }
 
@@ -97,6 +99,27 @@ ifconfig_err_ioctlreq(ifconfig_handle_t *h)
 {
 
 	return (h->error.ioctl_request);
+}
+
+int
+ifconfig_for_each_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb)
+{
+	int ret;
+
+	ret = ifconfig_getifaddrs(h);
+	if (ret == 0) {
+		struct ifaddrs *ifa;
+		char *ifname = NULL;
+
+		for (ifa = h->ifap; ifa; ifa=ifa->ifa_next) {
+			if (ifname !=ifa->ifa_name) {
+				ifname = ifa->ifa_name;
+				cb(h, ifa);
+			}
+		}
+	}
+
+	return (ret);
 }
 
 int

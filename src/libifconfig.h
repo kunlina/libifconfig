@@ -39,6 +39,8 @@ typedef enum {
 struct ifconfig_handle;
 typedef struct ifconfig_handle ifconfig_handle_t;
 
+struct ifaddrs;
+
 struct ifconfig_capabilities {
 	/** Current capabilities (ifconfig prints this as 'options')*/
 	int curcap;
@@ -76,6 +78,16 @@ ifconfig_errtype ifconfig_err_errtype(ifconfig_handle_t *h);
 
 /** Retrieves the errno associated with the error, if any. */
 int ifconfig_err_errno(ifconfig_handle_t *h);
+
+/* TODO: should we add an opaque user-provided data pointer ? */
+typedef void (*ifconfig_foreach_func_t)(ifconfig_handle_t *h,
+    struct ifaddrs *ifa);
+
+/** Iterate over every network interface
+ * @param cb	A callback function to call with a pointer to each interface
+ * @return	0 on success, nonzero if the list could not be iterated
+ */
+int ifconfig_for_each_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb);
 
 /** If error type was IOCTL, this identifies which request failed. */
 unsigned long ifconfig_err_ioctlreq(ifconfig_handle_t *h);

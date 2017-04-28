@@ -29,6 +29,7 @@
 
 #include <err.h>
 #include <errno.h>
+#include <ifaddrs.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
@@ -36,40 +37,46 @@
 #include <string.h>
 #include <libifconfig.h>
 
-
-int
-main(int argc, char *argv[])
+static void
+cb(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
-	char *ifname;
 	int fib, metric, mtu;
-	ifconfig_handle_t *lifh;
 
-	if (argc != 2)
-		errx(1, "Usage: example_status <IFNAME>");
-
-	lifh = ifconfig_open();
-	if (lifh == NULL)
-		errx(1, "Failed to open libifconfig handle.");
-	ifname = strdup(argv[1]);
-
-	printf("%s: ", ifname);
+	printf("%s: ", ifa->ifa_name);
 	
-	if (ifconfig_get_metric(lifh, ifname, &metric) == 0)
+	if (ifconfig_get_metric(lifh, ifa->ifa_name, &metric) == 0)
 		printf("metric %d ", metric);
 	else
 		err(1, "Failed to get interface metric");
-	if (ifconfig_get_mtu(lifh, ifname, &mtu) == 0)
+
+	if (ifconfig_get_mtu(lifh, ifa->ifa_name, &mtu) == 0)
 		printf("mtu %d\n", mtu);
 	else
 		err(1, "Failed to get interface MTU");
 
-	if (ifconfig_get_fib(lifh, ifname, &fib) == 0)
+	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0)
 		printf("\tfib: %d\n", fib);
 	else
 		err(1, "Failed to get interface FIB");
 
+}
+
+int
+main(int argc, char *argv[])
+{
+	ifconfig_handle_t *lifh;
+
+	if (argc != 1)
+		errx(1, "Usage: example_status");
+
+	lifh = ifconfig_open();
+	if (lifh == NULL)
+		errx(1, "Failed to open libifconfig handle.");
+
+	if (ifconfig_for_each_iface(lifh, cb) != 0)
+		err(1, "Failed to get interfaces");
+
 	ifconfig_close(lifh);
 	lifh = NULL;
-	free(ifname);
 	return (-1);
 }

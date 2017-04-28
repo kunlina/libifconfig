@@ -31,12 +31,26 @@
 #include <net/if.h>
 
 #include <errno.h>
+#include <ifaddrs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #include "libifconfig.h" // Needed for ifconfig_errstate
 #include "libifconfig_internal.h"
+
+int
+ifconfig_getifaddrs(ifconfig_handle_t *h)
+{
+	int ret;
+
+	if (h->ifap == NULL) {
+		ret = getifaddrs(&h->ifap);
+		/*h->ifa_cursor = h->ifap;*/
+		return (ret);
+	} else
+		return (0);
+}
 
 int
 ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
