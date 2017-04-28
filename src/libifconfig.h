@@ -86,6 +86,8 @@ int ifconfig_set_description(ifconfig_handle_t *h, const char *name,
 int ifconfig_unset_description(ifconfig_handle_t *h, const char *name);
 int ifconfig_set_name(ifconfig_handle_t *h, const char *name,
     const char *newname);
+int ifconfig_set_fib(ifconfig_handle_t *h, const char *name, int fib);
+int ifconfig_get_fib(ifconfig_handle_t *h, const char *name, int *fib);
 int ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu);
 int ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu);
 int ifconfig_set_metric(ifconfig_handle_t *h, const char *name,

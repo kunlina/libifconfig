@@ -230,6 +230,22 @@ ifconfig_set_name(ifconfig_handle_t *h, const char *name, const char *newname)
 }
 
 int
+ifconfig_get_fib(ifconfig_handle_t *h, const char *name, int *fib)
+{
+	struct ifreq ifr;
+
+	memset(&ifr, 0, sizeof(ifr));
+	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFFIB, &ifr) == -1) {
+		return (-1);
+	}
+
+	*fib = ifr.ifr_fib;
+	return (0);
+}
+
+int
 ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu)
 {
 	struct ifreq ifr;
