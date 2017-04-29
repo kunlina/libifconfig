@@ -122,6 +122,21 @@ ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb)
 	return (ret);
 }
 
+void
+ifconfig_foreach_ifaddr(ifconfig_handle_t *h, struct ifaddrs *ifa,
+    ifconfig_foreach_func_t cb)
+{
+	struct ifaddrs *ift;
+
+	for (ift = ifa;
+	    ift != NULL
+	        && ift->ifa_addr != NULL
+		&& strcmp(ift->ifa_name, ifa->ifa_name) == 0;
+	    ift = ift->ifa_next) {
+		cb(h, ift);
+	}
+}
+
 int
 ifconfig_get_description(ifconfig_handle_t *h, const char *name,
     char **description)

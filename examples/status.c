@@ -27,18 +27,50 @@
  * $FreeBSD$
  */
 
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <netinet/in.h>
+
 #include <err.h>
 #include <errno.h>
 #include <ifaddrs.h>
-#include <net/if.h>
-#include <sys/ioctl.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <libifconfig.h>
 
 static void
-cb(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	char addr_buf[NI_MAXHOST];
+	struct sockaddr_in *sin;
+
+	switch (ifa->ifa_addr->sa_family) {
+	case AF_INET:
+		sin = (struct sockaddr_in*)ifa->ifa_addr;
+		if (sin == NULL)
+			break;
+		inet_ntop(AF_INET, &sin->sin_addr, addr_buf, sizeof(addr_buf));
+		printf("\tinet %s\n", addr_buf);
+		/* TODO: print netmask, broadcast, and peer */
+		break;
+	case AF_INET6:
+	case AF_LINK:
+	case AF_LOCAL:
+	case AF_UNSPEC:
+	default:
+		/* TODO */
+		break;
+	}
+}
+
+static void
+print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	int fib, metric, mtu;
 	char *description = NULL;
@@ -68,6 +100,8 @@ cb(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	} else
 		err(1, "Failed to get interface capabilities");
 
+	ifconfig_foreach_ifaddr(lifh, ifa, print_ifaddr);
+
 	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0) {
 		if (fib != 0)
 			printf("\tfib: %d\n", fib);
@@ -92,7 +126,7 @@ main(int argc, char *argv[])
 	if (lifh == NULL)
 		errx(1, "Failed to open libifconfig handle.");
 
-	if (ifconfig_foreach_iface(lifh, cb) != 0)
+	if (ifconfig_foreach_iface(lifh, print_iface) != 0)
 		err(1, "Failed to get interfaces");
 
 	ifconfig_close(lifh);

@@ -84,10 +84,20 @@ typedef void (*ifconfig_foreach_func_t)(ifconfig_handle_t *h,
     struct ifaddrs *ifa);
 
 /** Iterate over every network interface
+ * @param h	An open ifconfig state object
  * @param cb	A callback function to call with a pointer to each interface
  * @return	0 on success, nonzero if the list could not be iterated
  */
 int ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb);
+
+/** Iterate over every address on a single network interface
+ * @param h	An open ifconfig state object
+ * @param ifa	A pointer that was supplied by a previous call to
+ * 		ifconfig_foreach_iface
+ * @param cb	A callback function to call with a pointer to each ifaddr
+ */
+void ifconfig_foreach_ifaddr(ifconfig_handle_t *h, struct ifaddrs *ifa,
+    ifconfig_foreach_func_t cb);
 
 /** If error type was IOCTL, this identifies which request failed. */
 unsigned long ifconfig_err_ioctlreq(ifconfig_handle_t *h);
