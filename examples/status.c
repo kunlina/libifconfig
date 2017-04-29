@@ -43,6 +43,7 @@ cb(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	int fib, metric, mtu;
 	char *description = NULL;
 	struct ifconfig_capabilities caps;
+	struct ifstat ifs;
 
 	printf("%s: flags=%x ", ifa->ifa_name, ifa->ifa_flags);
 
@@ -73,6 +74,9 @@ cb(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	} else
 		err(1, "Failed to get interface FIB");
 
+	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
+		printf("%s", ifs.ascii);
+
 	free(description);
 }
 
@@ -88,7 +92,7 @@ main(int argc, char *argv[])
 	if (lifh == NULL)
 		errx(1, "Failed to open libifconfig handle.");
 
-	if (ifconfig_for_each_iface(lifh, cb) != 0)
+	if (ifconfig_foreach_iface(lifh, cb) != 0)
 		err(1, "Failed to get interfaces");
 
 	ifconfig_close(lifh);

@@ -387,6 +387,23 @@ ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
 }
 
 int
+ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
+    struct ifstat *ifs)
+{
+	int s;
+
+	if (ifconfig_socket(h, AF_LOCAL, &s) != 0) {
+		return (-1);
+	}
+
+	strlcpy(ifs->ifs_name, name, sizeof(ifs->ifs_name));
+	if (ioctl(s, SIOCGIFSTATUS, ifs) < 0)
+		return (-1);
+	else
+		return (0);
+}
+
+int
 ifconfig_destroy_interface(ifconfig_handle_t *h, const char *name)
 {
 	struct ifreq ifr;

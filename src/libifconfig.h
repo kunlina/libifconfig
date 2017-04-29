@@ -109,6 +109,8 @@ int ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
     const int capability);
 int ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
     struct ifconfig_capabilities *capability);
+int ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
+    struct ifstat *stat);
 
 /** Destroy a virtual interface
  * @param name Interface to destroy
