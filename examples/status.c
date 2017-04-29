@@ -48,18 +48,40 @@ static void
 print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	char addr_buf[NI_MAXHOST];
-	struct sockaddr_in *sin;
+	struct sockaddr_in *sin, *dst, null_sin, *mask, *bcast;
 
+	memset(&null_sin, 0, sizeof(null_sin));
 	switch (ifa->ifa_addr->sa_family) {
 	case AF_INET:
 		sin = (struct sockaddr_in*)ifa->ifa_addr;
 		if (sin == NULL)
 			break;
 		inet_ntop(AF_INET, &sin->sin_addr, addr_buf, sizeof(addr_buf));
-		printf("\tinet %s\n", addr_buf);
-		/* TODO: print netmask, broadcast, and peer */
+		printf("\tinet %s", addr_buf);
+		if (ifa->ifa_flags & IFF_POINTOPOINT) {
+			dst = (struct sockaddr_in*)ifa->ifa_dstaddr;
+			if (dst == NULL)
+				dst = &null_sin;
+			printf(" --> %s", inet_ntoa(sin->sin_addr));
+		}
+		mask = (struct sockaddr_in*)ifa->ifa_netmask;
+		if (mask == NULL)
+			mask = &null_sin;
+		printf(" netmask 0x%lx ", (unsigned long)ntohl(mask->sin_addr.s_addr));
+		if (ifa->ifa_flags & IFF_BROADCAST) {
+			bcast = (struct sockaddr_in*)ifa->ifa_broadaddr;
+			if (bcast != NULL && bcast->sin_addr.s_addr != 0)
+				printf("broadcast %s ", inet_ntoa(bcast->sin_addr));
+		}
+		/* TODO: print vhid*/
+		printf("\n");
 		break;
 	case AF_INET6:
+		/*
+		 * printing AF_INET6 status requires calling SIOCGIFAFLAG_IN6
+		 * and SIOCGIFALIFETIME_IN6.  TODO: figure out the best way to
+		 * do that from within libifconfig
+		 */
 	case AF_LINK:
 	case AF_LOCAL:
 	case AF_UNSPEC:
