@@ -401,6 +401,36 @@ ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
 	return (0);
 }
 
+int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
+    struct ifgroupreq *ifgr)
+{
+	int s, len;
+
+	if (ifconfig_socket(h, AF_LOCAL, &s) != 0) {
+		return (-1);
+	}
+
+	memset(ifgr, 0, sizeof(*ifgr));
+	strlcpy(ifgr->ifgr_name, name, IFNAMSIZ);
+
+	if (ioctl(s, SIOCGIFGROUP, (caddr_t)ifgr) == -1) {
+		if (errno == EINVAL || errno == ENOTTY)
+			return (0);
+		else
+			return (1);
+	}
+
+	len = ifgr->ifgr_len;
+	ifgr->ifgr_groups = (struct ifg_req *)malloc(len);
+	if (ifgr->ifgr_groups == NULL)
+		return (1);
+	bzero(ifgr->ifgr_groups, len);
+	if (ioctl(s, SIOCGIFGROUP, (caddr_t)ifgr) == -1)
+		return (1);
+
+	return (0);
+}
+
 int
 ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
     struct ifstat *ifs)

@@ -46,7 +46,6 @@ ifconfig_getifaddrs(ifconfig_handle_t *h)
 
 	if (h->ifap == NULL) {
 		ret = getifaddrs(&h->ifap);
-		/*h->ifa_cursor = h->ifap;*/
 		return (ret);
 	} else
 		return (0);

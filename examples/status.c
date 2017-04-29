@@ -92,9 +92,48 @@ print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 }
 
 static void
+print_fib(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	int fib;
+
+	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0) {
+		printf("\tfib: %d\n", fib);
+	} else
+		err(1, "Failed to get interface FIB");
+}
+
+static void
+print_groups(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	struct ifgroupreq ifgr;
+	struct ifg_req *ifg;
+	int len;
+	int cnt = 0;
+
+	if (ifconfig_get_groups(lifh, ifa->ifa_name, &ifgr) != 0)
+		err(1, "Failed to get groups");
+
+	ifg = ifgr.ifgr_groups;
+	len = ifgr.ifgr_len;
+	for (; ifg && len >= sizeof(struct ifg_req); ifg++) {
+		len -= sizeof(struct ifg_req);
+		if (strcmp(ifg->ifgrq_group, "all")) {
+			if (cnt == 0)
+				printf("\tgroups: ");
+			cnt++;
+			printf("%s ", ifg->ifgrq_group);
+		}
+	}
+	if (cnt)
+		printf("\n");
+
+	free(ifgr.ifgr_groups);
+}
+
+static void
 print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
-	int fib, metric, mtu;
+	int metric, mtu;
 	char *description = NULL;
 	struct ifconfig_capabilities caps;
 	struct ifstat ifs;
@@ -124,11 +163,9 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 
 	ifconfig_foreach_ifaddr(lifh, ifa, print_ifaddr);
 
-	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0) {
-		if (fib != 0)
-			printf("\tfib: %d\n", fib);
-	} else
-		err(1, "Failed to get interface FIB");
+	/* This paragraph is equivalent to ifconfig's af_other_status funcs */
+	print_fib(lifh, ifa);
+	print_groups(lifh, ifa);
 
 	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
 		printf("%s", ifs.ascii);

@@ -119,6 +119,15 @@ int ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
     const int capability);
 int ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
     struct ifconfig_capabilities *capability);
+/** Retrieve the list of groups to which this interface belongs
+ * @param h	An open ifconfig state object
+ * @param name	The interface name
+ * @param ifgr	return argument.  The caller is responsible for freeing
+ * 		ifgr->ifgr_groups
+ * @return	0 on success, nonzero on failure
+ */
+int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
+    struct ifgroupreq *ifgr);
 int ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
     struct ifstat *stat);
 
