@@ -87,7 +87,7 @@ typedef void (*ifconfig_foreach_func_t)(ifconfig_handle_t *h,
  * @param cb	A callback function to call with a pointer to each interface
  * @return	0 on success, nonzero if the list could not be iterated
  */
-int ifconfig_for_each_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb);
+int ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb);
 
 /** If error type was IOCTL, this identifies which request failed. */
 unsigned long ifconfig_err_ioctlreq(ifconfig_handle_t *h);

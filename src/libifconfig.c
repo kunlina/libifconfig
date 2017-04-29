@@ -102,7 +102,7 @@ ifconfig_err_ioctlreq(ifconfig_handle_t *h)
 }
 
 int
-ifconfig_for_each_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb)
+ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb)
 {
 	int ret;
 

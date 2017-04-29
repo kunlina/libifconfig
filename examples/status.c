@@ -41,9 +41,11 @@ static void
 cb(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	int fib, metric, mtu;
+	char *description = NULL;
+	struct ifconfig_capabilities caps;
 
-	printf("%s: ", ifa->ifa_name);
-	
+	printf("%s: flags=%x ", ifa->ifa_name, ifa->ifa_flags);
+
 	if (ifconfig_get_metric(lifh, ifa->ifa_name, &metric) == 0)
 		printf("metric %d ", metric);
 	else
@@ -54,11 +56,24 @@ cb(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	else
 		err(1, "Failed to get interface MTU");
 
-	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0)
-		printf("\tfib: %d\n", fib);
-	else
+	if (ifconfig_get_description(lifh, ifa->ifa_name, &description) == 0)
+		printf("\tdescription: %s\n", description);
+
+	if (ifconfig_get_capability(lifh, ifa->ifa_name, &caps) == 0) {
+		if (caps.curcap != 0)
+			printf("\toptions=%x\n", caps.curcap);
+		if (caps.reqcap != 0)
+			printf("\tcapabilities=%x\n", caps.reqcap);
+	} else
+		err(1, "Failed to get interface capabilities");
+
+	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0) {
+		if (fib != 0)
+			printf("\tfib: %d\n", fib);
+	} else
 		err(1, "Failed to get interface FIB");
 
+	free(description);
 }
 
 int
