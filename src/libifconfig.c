@@ -416,8 +416,12 @@ int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
 	if (ioctl(s, SIOCGIFGROUP, (caddr_t)ifgr) == -1) {
 		if (errno == EINVAL || errno == ENOTTY)
 			return (0);
-		else
-			return (1);
+		else {
+			h->error.errtype = IOCTL;
+			h->error.ioctl_request = SIOCGIFGROUP;
+			h->error.errcode = errno;
+			return (-1);
+		}
 	}
 
 	len = ifgr->ifgr_len;
@@ -425,8 +429,12 @@ int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
 	if (ifgr->ifgr_groups == NULL)
 		return (1);
 	bzero(ifgr->ifgr_groups, len);
-	if (ioctl(s, SIOCGIFGROUP, (caddr_t)ifgr) == -1)
-		return (1);
+	if (ioctl(s, SIOCGIFGROUP, (caddr_t)ifgr) == -1) {
+		h->error.errtype = IOCTL;
+		h->error.ioctl_request = SIOCGIFGROUP;
+		h->error.errcode = errno;
+		return (-1);
+	}
 
 	return (0);
 }
@@ -442,9 +450,12 @@ ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
 	}
 
 	strlcpy(ifs->ifs_name, name, sizeof(ifs->ifs_name));
-	if (ioctl(s, SIOCGIFSTATUS, ifs) < 0)
+	if (ioctl(s, SIOCGIFSTATUS, ifs) < 0) {
+		h->error.errtype = IOCTL;
+		h->error.ioctl_request = SIOCGIFSTATUS;
+		h->error.errcode = errno;
 		return (-1);
-	else
+	} else
 		return (0);
 }
 
