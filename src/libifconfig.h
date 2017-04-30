@@ -28,8 +28,13 @@
 
 #pragma once
 
+#define ND6_IFF_DEFAULTIF	0x8000
+
 typedef enum {
-	OTHER, IOCTL, SOCKET
+	OK = 0,
+	OTHER,
+	IOCTL,
+	SOCKET
 } ifconfig_errtype;
 
 /*
@@ -40,6 +45,7 @@ struct ifconfig_handle;
 typedef struct ifconfig_handle ifconfig_handle_t;
 
 struct ifaddrs;
+struct in6_ndireq;
 
 struct ifconfig_capabilities {
 	/** Current capabilities (ifconfig prints this as 'options')*/
@@ -112,6 +118,8 @@ int ifconfig_set_fib(ifconfig_handle_t *h, const char *name, int fib);
 int ifconfig_get_fib(ifconfig_handle_t *h, const char *name, int *fib);
 int ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu);
 int ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu);
+int ifconfig_get_nd6(ifconfig_handle_t *h, const char *name,
+    struct in6_ndireq *nd);
 int ifconfig_set_metric(ifconfig_handle_t *h, const char *name,
     const int metric);
 int ifconfig_get_metric(ifconfig_handle_t *h, const char *name, int *metric);

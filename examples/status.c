@@ -34,6 +34,8 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <netinet6/in6_var.h>
+#include <netinet6/nd6.h>
 
 #include <err.h>
 #include <errno.h>
@@ -89,6 +91,17 @@ print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		/* TODO */
 		break;
 	}
+}
+
+static void
+print_nd6(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	struct in6_ndireq nd;
+
+	if (ifconfig_get_nd6(lifh, ifa->ifa_name, &nd) == 0) {
+		printf("\tnd6 options=%x\n", nd.ndi.flags);
+	} else
+		err(1, "Failed to get nd6 options");
 }
 
 static void
@@ -164,6 +177,7 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	ifconfig_foreach_ifaddr(lifh, ifa, print_ifaddr);
 
 	/* This paragraph is equivalent to ifconfig's af_other_status funcs */
+	print_nd6(lifh, ifa);
 	print_fib(lifh, ifa);
 	print_groups(lifh, ifa);
 

@@ -33,11 +33,15 @@
 #include <sys/ioctl.h>
 
 #include <net/if.h>
+#include <netinet/in.h>
+#include <netinet6/in6_var.h>
+#include <netinet6/nd6.h>
 
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <ifaddrs.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,6 +53,31 @@
 #include "libifconfig_internal.h"
 
 #define NOTAG    ((u_short) -1)
+
+static bool
+isnd6defif(ifconfig_handle_t *h, const char *name)
+{
+	struct in6_ndifreq ndifreq;
+	unsigned int ifindex;
+	int s, error;
+
+	if (ifconfig_socket(h, AF_INET6, &s) != 0) {
+		return (-1);
+	}
+
+	memset(&ndifreq, 0, sizeof(ndifreq));
+	strlcpy(ndifreq.ifname, name, sizeof(ndifreq.ifname));
+	ifindex = if_nametoindex(ndifreq.ifname);
+	error = ioctl(s, SIOCGDEFIFACE_IN6, (caddr_t)&ndifreq);
+	if (error) {
+		h->error.errtype = IOCTL;
+		h->error.ioctl_request = SIOCGDEFIFACE_IN6;
+		h->error.errcode = errno;
+		return (false);
+	}
+	h->error.errtype = OK;
+	return (ndifreq.ifindex == ifindex);
+}
 
 ifconfig_handle_t *
 ifconfig_open(void)
@@ -312,6 +341,31 @@ ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu)
 	}
 
 	*mtu = ifr.ifr_mtu;
+	return (0);
+}
+
+int
+ifconfig_get_nd6(ifconfig_handle_t *h, const char *name,
+    struct in6_ndireq *nd)
+{
+	int s;
+
+	memset(nd, 0, sizeof(*nd));
+	strlcpy(nd->ifname, name, sizeof(nd->ifname));
+	if (ifconfig_socket(h, AF_INET6, &s) != 0) {
+		return (-1);
+	}
+	if (ioctl(s, SIOCGIFINFO_IN6, nd) == -1) {
+		h->error.errtype = IOCTL;
+		h->error.ioctl_request = SIOCGIFINFO_IN6;
+		h->error.errcode = errno;
+		return (-1);
+	}
+	if (isnd6defif(h, name))
+		nd->ndi.flags |= ND6_IFF_DEFAULTIF;
+	else if (h->error.errtype != OK)
+		return (-1);
+
 	return (0);
 }
 
