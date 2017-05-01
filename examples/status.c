@@ -27,7 +27,7 @@
  * $FreeBSD$
  */
 
-#include <sys/types.h>
+#include <sys/param.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 
@@ -81,53 +81,69 @@ print_inet4_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	printf("\n");
 }
 
-static int inet6_prefixlen(struct in6_addr *addr)
-{
-	int prefixlen = 0;
-	int i;
-
-	for (i=0; i < 4; i++) {
-		int x = ffs(ntohl(addr->__u6_addr.__u6_addr32[i]));
-		prefixlen += x == 0 ? 0 : 33 - x;
-		if (x != 1)
-			break;
-	}
-	return (prefixlen);
-}
-
 static void
 print_inet6_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
+	struct ifconfig_inet6_addr addr;
 	char addr_buf[NI_MAXHOST];
-	struct sockaddr_in6 *sin6, *netmask, null_sin6;
+	struct timespec now;
 
-	memset(&null_sin6, 0, sizeof(null_sin6));
-	sin6 = (struct sockaddr_in6 *)ifa->ifa_addr;
-	if (sin6 == NULL)
-		return;
-
-	if (0 != getnameinfo((struct sockaddr*)sin6, sin6->sin6_len, addr_buf,
-	    sizeof(addr_buf), NULL, 0, NI_NUMERICHOST))
-		inet_ntop(AF_INET6, &sin6->sin6_addr, addr_buf,
+	/* Print the address */
+	if (ifconfig_inet6_get_addrinfo(lifh, ifa->ifa_name, ifa, &addr) != 0)
+		err(1, "ifconfig_inet6_get_addrinfo");
+	if (0 != getnameinfo((struct sockaddr*)addr.sin6, addr.sin6->sin6_len,
+	    addr_buf, sizeof(addr_buf), NULL, 0, NI_NUMERICHOST))
+		inet_ntop(AF_INET6, &addr.sin6->sin6_addr, addr_buf,
 		    sizeof(addr_buf));
 	printf("\tinet6 %s", addr_buf);
 
-	if (ifa->ifa_flags & IFF_POINTOPOINT) {
-		if (sin6 != NULL && sin6->sin6_family == AF_INET6) {
-			inet_ntop(AF_INET6, &sin6->sin6_addr, addr_buf,
-			    sizeof(addr_buf));
-			printf(" --> %s", addr_buf);
-		}
+	if (addr.dstin6) {
+		inet_ntop(AF_INET6, addr.dstin6, addr_buf, sizeof(addr_buf));
+		printf(" --> %s", addr_buf);
 	}
 
-	netmask = (struct sockaddr_in6 *)ifa->ifa_netmask;
-	if (netmask == NULL)
-		netmask = &null_sin6;
-	printf(" prefixlen %d ", inet6_prefixlen(&netmask->sin6_addr));
+	/* Print the netmask */
+	printf(" prefixlen %d ", addr.prefixlen);
 
-	if (sin6->sin6_scope_id)
-		printf("scopeid 0x%x ", sin6->sin6_scope_id);
+	/* Print the scopeid*/
+	if (addr.sin6->sin6_scope_id)
+		printf("scopeid 0x%x ", addr.sin6->sin6_scope_id);
 
+	/* Print the flags */
+	if ((addr.flags & IN6_IFF_ANYCAST) != 0)
+		printf("anycast ");
+	if ((addr.flags & IN6_IFF_TENTATIVE) != 0)
+		printf("tentative ");
+	if ((addr.flags & IN6_IFF_DUPLICATED) != 0)
+		printf("duplicated ");
+	if ((addr.flags & IN6_IFF_DETACHED) != 0)
+		printf("detached ");
+	if ((addr.flags & IN6_IFF_DEPRECATED) != 0)
+		printf("deprecated ");
+	if ((addr.flags & IN6_IFF_AUTOCONF) != 0)
+		printf("autoconf ");
+	if ((addr.flags & IN6_IFF_TEMPORARY) != 0)
+		printf("temporary ");
+	if ((addr.flags & IN6_IFF_PREFER_SOURCE) != 0)
+		printf("prefer_source ");
+
+	/* Print the lifetimes */
+	clock_gettime(CLOCK_MONOTONIC_FAST, &now);
+	if (addr.lifetime.ia6t_preferred || addr.lifetime.ia6t_expire) {
+		printf("pltime ");
+		if (addr.lifetime.ia6t_preferred) {
+			printf("%ld ", MAX(0l,
+			    addr.lifetime.ia6t_preferred - now.tv_sec));
+		} else
+			printf("infty ");
+
+		printf("vltime ");
+		if (addr.lifetime.ia6t_expire) {
+			printf("%ld ", MAX(0l,
+			    addr.lifetime.ia6t_expire - now.tv_sec));
+		} else
+			printf("infty ");
+	}
 	// TODO: print vhid
 	printf("\n");
 }

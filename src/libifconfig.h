@@ -28,6 +28,9 @@
 
 #pragma once
 
+#include <netinet/in.h>
+#include <netinet6/in6_var.h>
+
 #define ND6_IFF_DEFAULTIF	0x8000
 
 typedef enum {
@@ -52,6 +55,15 @@ struct ifconfig_capabilities {
 	int curcap;
 	/** Requested capabilities (ifconfig prints this as 'capabilities')*/
 	int reqcap;
+};
+
+/** Stores extra info associated with an inet6 address */
+struct ifconfig_inet6_addr {
+	struct sockaddr_in6	*sin6;
+	struct sockaddr_in6	*dstin6;
+	int			prefixlen;
+	uint32_t		flags;
+	struct in6_addrlifetime	lifetime;
 };
 
 /** Retrieves a new state object for use in other API calls.
@@ -154,6 +166,17 @@ const char* ifconfig_get_media_type(int ifmw);
 const char* ifconfig_get_media_subtype(int ifmw);
 const char* ifconfig_get_media_status(const struct ifmediareq *ifmr);
 void ifconfig_get_media_options_string(int ifmw, char *buf, size_t buflen);
+
+/** Retrieve additional information about an inet6 address
+ * @param h	An open ifconfig state object
+ * @param name	The interface name
+ * @param ifa	Pointer to the the address structure of interest
+ * @param addr	Return argument.  It will be filled with additional information
+ * 		about the address.
+ * @return	0 on success, nonzero on failure.
+ */
+int ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
+    const char *name, struct ifaddrs *ifa, struct ifconfig_inet6_addr *addr);
 
 /** Destroy a virtual interface
  * @param name Interface to destroy
