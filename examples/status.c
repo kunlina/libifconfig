@@ -186,6 +186,11 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	    ifconfig_get_media_subtype(ifmr.ifm_current),
 	    ifconfig_get_media_subtype(ifmr.ifm_active),
 	    IFM_OPTIONS(ifmr.ifm_active)  );
+
+	if (ifmr.ifm_status & IFM_AVALID) {
+		printf("\tstatus: %s\n",
+		    ifconfig_get_media_status(&ifmr));
+	}
 }
 
 static void

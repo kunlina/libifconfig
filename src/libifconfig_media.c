@@ -644,3 +644,38 @@ ifconfig_get_media(ifconfig_handle_t *h, const char *name,
 
 	return (0);
 }
+
+const char*
+ifconfig_get_media_status(const struct ifmediareq *ifmr)
+{
+	switch (IFM_TYPE(ifmr->ifm_active)) {
+	case IFM_ETHER:
+	case IFM_ATM:
+		if (ifmr->ifm_status & IFM_ACTIVE)
+			return ("active");
+		else
+			return ("no carrier");
+		break;
+
+	case IFM_FDDI:
+	case IFM_TOKEN:
+		if (ifmr->ifm_status & IFM_ACTIVE)
+			return ("inserted");
+		else
+			return ("no ring");
+		break;
+
+	case IFM_IEEE80211:
+		if (ifmr->ifm_status & IFM_ACTIVE) {
+			/* NB: only sta mode associates */
+			if (IFM_OPMODE(ifmr->ifm_active) == IFM_IEEE80211_STA)
+				return ("associated");
+			else
+				return ("running");
+		} else
+			return ("no carrier");
+		break;
+	default:
+		return ("");
+	}
+}
