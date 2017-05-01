@@ -33,6 +33,7 @@
 
 #include <arpa/inet.h>
 #include <net/if.h>
+#include <net/if_media.h>
 #include <netinet/in.h>
 #include <netinet6/in6_var.h>
 #include <netinet6/nd6.h>
@@ -144,6 +145,50 @@ print_groups(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 }
 
 static void
+print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	/* Outline:
+	 * 1) Determine whether the iface supports SIOGIFMEDIA or SIOGIFXMEDIA
+	 * 2) Get the full media list
+	 * 3) Print the current media word
+	 * 4) Print the active media word, if different
+	 * 5) Print the status
+	 * 6) Print the supported media list
+	 *
+	 * How to print the media word:
+	 * 1) Get the top-level interface type and description
+	 * 2) Print the subtype
+	 * 3) For current word only, print the top type, if it exists
+	 * 4) Print options list
+	 * 5) Print the instance, if there is one
+	 *
+	 * How to get the top-level interface type
+	 * 1) Shift ifmw right by 0x20 and index into IFM_TYPE_DESCRIPTIONS
+	 *
+	 * How to get the top-level interface subtype
+	 * 1) Shift ifmw right by 0x20, index into ifmedia_types_to_subtypes
+	 * 2) Iterate through the resulting table's subtypes table, ignoring
+	 *    aliases.  Iterate through the resulting ifmedia_description
+	 *    tables,  finding an entry with the right media subtype
+	 */
+	struct ifmediareq ifmr;
+
+	if (ifconfig_get_media(lifh, ifa->ifa_name, &ifmr) != 0) {
+		if (ifconfig_err_errtype(lifh) != OK)
+			err(1, "Failed to get media info");
+		else
+			return;	/* Interface doesn't support media info */
+	}
+
+	/*printf("\tmedia: %x (%x)\n", ifmr.ifm_current, ifmr.ifm_active);*/
+	printf("\tmedia: %s %s (%s <%x>)\n",
+	    ifconfig_get_media_type(ifmr.ifm_current),
+	    ifconfig_get_media_subtype(ifmr.ifm_current),
+	    ifconfig_get_media_subtype(ifmr.ifm_active),
+	    IFM_OPTIONS(ifmr.ifm_active)  );
+}
+
+static void
 print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	int metric, mtu;
@@ -180,6 +225,7 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	print_nd6(lifh, ifa);
 	print_fib(lifh, ifa);
 	print_groups(lifh, ifa);
+	print_media(lifh, ifa);
 
 	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
 		printf("%s", ifs.ascii);
