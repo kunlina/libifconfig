@@ -26,6 +26,9 @@
  * $FreeBSD$
  */
 
+#include <arpa/inet.h>
+#include <net/if.h>
+
 #include <err.h>
 #include <errno.h>
 #include <stdio.h>
@@ -77,7 +80,7 @@ main(int argc, char *argv[])
 				    lifh), "IOCTL(%lu) error",
 			    ifconfig_err_ioctlreq(lifh));
 			break;
-		case OTHER:
+		default:
 			err(ifconfig_err_errno(lifh), "Other error");
 			break;
 		}
