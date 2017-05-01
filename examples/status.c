@@ -32,8 +32,11 @@
 #include <sys/socket.h>
 
 #include <arpa/inet.h>
+#include <net/ethernet.h>
 #include <net/if.h>
+#include <net/if_dl.h>
 #include <net/if_media.h>
+#include <net/if_types.h>
 #include <netinet/in.h>
 #include <netinet6/in6_var.h>
 #include <netinet6/nd6.h>
@@ -52,6 +55,8 @@ print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	char addr_buf[NI_MAXHOST];
 	struct sockaddr_in *sin, *dst, null_sin, *mask, *bcast;
+	struct sockaddr_dl *sdl;
+	int n;
 
 	memset(&null_sin, 0, sizeof(null_sin));
 	switch (ifa->ifa_addr->sa_family) {
@@ -86,6 +91,21 @@ print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		 * do that from within libifconfig
 		 */
 	case AF_LINK:
+		sdl = (struct sockaddr_dl*) ifa->ifa_addr;
+		if (sdl != NULL && sdl->sdl_alen > 0) {
+			if ((sdl->sdl_type == IFT_ETHER ||
+			    sdl->sdl_type == IFT_L2VLAN ||
+			    sdl->sdl_type == IFT_BRIDGE) &&
+			    sdl->sdl_alen == ETHER_ADDR_LEN) {
+				ether_ntoa_r((struct ether_addr *)LLADDR(sdl),
+				    addr_buf);
+				printf("\tether %s\n", addr_buf);
+			} else {
+				n = sdl->sdl_nlen > 0 ? sdl->sdl_nlen + 1 : 0;
+
+				printf("\tlladdr %s\n", link_ntoa(sdl) + n);
+			}
+		}
 	case AF_LOCAL:
 	case AF_UNSPEC:
 	default:
