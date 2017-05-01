@@ -51,38 +51,116 @@
 #include <libifconfig.h>
 
 static void
-print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+print_inet4_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	char addr_buf[NI_MAXHOST];
 	struct sockaddr_in *sin, *dst, null_sin, *mask, *bcast;
+
+	memset(&null_sin, 0, sizeof(null_sin));
+	sin = (struct sockaddr_in*)ifa->ifa_addr;
+	if (sin == NULL)
+		return;
+	inet_ntop(AF_INET, &sin->sin_addr, addr_buf, sizeof(addr_buf));
+	printf("\tinet %s", addr_buf);
+	if (ifa->ifa_flags & IFF_POINTOPOINT) {
+		dst = (struct sockaddr_in*)ifa->ifa_dstaddr;
+		if (dst == NULL)
+			dst = &null_sin;
+		printf(" --> %s", inet_ntoa(sin->sin_addr));
+	}
+	mask = (struct sockaddr_in*)ifa->ifa_netmask;
+	if (mask == NULL)
+		mask = &null_sin;
+	printf(" netmask 0x%lx ", (unsigned long)ntohl(mask->sin_addr.s_addr));
+	if (ifa->ifa_flags & IFF_BROADCAST) {
+		bcast = (struct sockaddr_in*)ifa->ifa_broadaddr;
+		if (bcast != NULL && bcast->sin_addr.s_addr != 0)
+			printf("broadcast %s ", inet_ntoa(bcast->sin_addr));
+	}
+	/* TODO: print vhid*/
+	printf("\n");
+}
+
+static int inet6_prefixlen(struct in6_addr *addr)
+{
+	int prefixlen = 0;
+	int i;
+
+	for (i=0; i < 4; i++) {
+		int x = ffs(ntohl(addr->__u6_addr.__u6_addr32[i]));
+		prefixlen += x == 0 ? 0 : 33 - x;
+		if (x != 1)
+			break;
+	}
+	return (prefixlen);
+}
+
+static void
+print_inet6_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	char addr_buf[NI_MAXHOST];
+	struct sockaddr_in6 *sin6, *netmask, null_sin6;
+
+	memset(&null_sin6, 0, sizeof(null_sin6));
+	sin6 = (struct sockaddr_in6 *)ifa->ifa_addr;
+	if (sin6 == NULL)
+		return;
+
+	if (0 != getnameinfo((struct sockaddr*)sin6, sin6->sin6_len, addr_buf,
+	    sizeof(addr_buf), NULL, 0, NI_NUMERICHOST))
+		inet_ntop(AF_INET6, &sin6->sin6_addr, addr_buf,
+		    sizeof(addr_buf));
+	printf("\tinet6 %s", addr_buf);
+
+	if (ifa->ifa_flags & IFF_POINTOPOINT) {
+		if (sin6 != NULL && sin6->sin6_family == AF_INET6) {
+			inet_ntop(AF_INET6, &sin6->sin6_addr, addr_buf,
+			    sizeof(addr_buf));
+			printf(" --> %s", addr_buf);
+		}
+	}
+
+	netmask = (struct sockaddr_in6 *)ifa->ifa_netmask;
+	if (netmask == NULL)
+		netmask = &null_sin6;
+	printf(" prefixlen %d ", inet6_prefixlen(&netmask->sin6_addr));
+
+	if (sin6->sin6_scope_id)
+		printf("scopeid 0x%x ", sin6->sin6_scope_id);
+
+	// TODO: print vhid
+	printf("\n");
+}
+
+static void
+print_link_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	char addr_buf[NI_MAXHOST];
 	struct sockaddr_dl *sdl;
 	int n;
 
-	memset(&null_sin, 0, sizeof(null_sin));
+	sdl = (struct sockaddr_dl*) ifa->ifa_addr;
+	if (sdl != NULL && sdl->sdl_alen > 0) {
+		if ((sdl->sdl_type == IFT_ETHER ||
+		    sdl->sdl_type == IFT_L2VLAN ||
+		    sdl->sdl_type == IFT_BRIDGE) &&
+		    sdl->sdl_alen == ETHER_ADDR_LEN) {
+			ether_ntoa_r((struct ether_addr *)LLADDR(sdl), addr_buf);
+			printf("\tether %s\n", addr_buf);
+		} else {
+			n = sdl->sdl_nlen > 0 ? sdl->sdl_nlen + 1 : 0;
+
+			printf("\tlladdr %s\n", link_ntoa(sdl) + n);
+		}
+	}
+}
+
+static void
+print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
 	switch (ifa->ifa_addr->sa_family) {
 	case AF_INET:
-		sin = (struct sockaddr_in*)ifa->ifa_addr;
-		if (sin == NULL)
-			break;
-		inet_ntop(AF_INET, &sin->sin_addr, addr_buf, sizeof(addr_buf));
-		printf("\tinet %s", addr_buf);
-		if (ifa->ifa_flags & IFF_POINTOPOINT) {
-			dst = (struct sockaddr_in*)ifa->ifa_dstaddr;
-			if (dst == NULL)
-				dst = &null_sin;
-			printf(" --> %s", inet_ntoa(sin->sin_addr));
-		}
-		mask = (struct sockaddr_in*)ifa->ifa_netmask;
-		if (mask == NULL)
-			mask = &null_sin;
-		printf(" netmask 0x%lx ", (unsigned long)ntohl(mask->sin_addr.s_addr));
-		if (ifa->ifa_flags & IFF_BROADCAST) {
-			bcast = (struct sockaddr_in*)ifa->ifa_broadaddr;
-			if (bcast != NULL && bcast->sin_addr.s_addr != 0)
-				printf("broadcast %s ", inet_ntoa(bcast->sin_addr));
-		}
-		/* TODO: print vhid*/
-		printf("\n");
+		print_inet4_addr(lifh, ifa);
 		break;
 	case AF_INET6:
 		/*
@@ -90,22 +168,11 @@ print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		 * and SIOCGIFALIFETIME_IN6.  TODO: figure out the best way to
 		 * do that from within libifconfig
 		 */
+		print_inet6_addr(lifh, ifa);
+		break;
 	case AF_LINK:
-		sdl = (struct sockaddr_dl*) ifa->ifa_addr;
-		if (sdl != NULL && sdl->sdl_alen > 0) {
-			if ((sdl->sdl_type == IFT_ETHER ||
-			    sdl->sdl_type == IFT_L2VLAN ||
-			    sdl->sdl_type == IFT_BRIDGE) &&
-			    sdl->sdl_alen == ETHER_ADDR_LEN) {
-				ether_ntoa_r((struct ether_addr *)LLADDR(sdl),
-				    addr_buf);
-				printf("\tether %s\n", addr_buf);
-			} else {
-				n = sdl->sdl_nlen > 0 ? sdl->sdl_nlen + 1 : 0;
-
-				printf("\tlladdr %s\n", link_ntoa(sdl) + n);
-			}
-		}
+		print_link_addr(lifh, ifa);
+		break;
 	case AF_LOCAL:
 	case AF_UNSPEC:
 	default:
