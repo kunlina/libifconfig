@@ -153,6 +153,7 @@ int ifconfig_get_media(ifconfig_handle_t *h, const char *name,
 const char* ifconfig_get_media_type(int ifmw);
 const char* ifconfig_get_media_subtype(int ifmw);
 const char* ifconfig_get_media_status(const struct ifmediareq *ifmr);
+void ifconfig_get_media_options_string(int ifmw, char *buf, size_t buflen);
 
 /** Destroy a virtual interface
  * @param name Interface to destroy

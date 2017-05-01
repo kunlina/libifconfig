@@ -40,6 +40,7 @@
 #include <net/if_media.h>
 #include <net/route.h>
 
+#include <assert.h>
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
@@ -677,5 +678,33 @@ ifconfig_get_media_status(const struct ifmediareq *ifmr)
 		break;
 	default:
 		return ("");
+	}
+}
+
+void
+ifconfig_get_media_options_string(int ifmw, char *buf, size_t buflen)
+{
+	struct ifmedia_type_to_subtype *ttos;
+	struct ifmedia_description *desc;
+	int i, seen_option = 0;
+	size_t len;
+
+	assert(buflen > 0);
+	buf[0] = '\0';
+	ttos = get_toptype_ttos(ifmw);
+	for (i = 0; ttos->options[i].desc != NULL; i++) {
+		if (ttos->options[i].alias)
+			continue;
+		for (desc = ttos->options[i].desc;
+		    desc->ifmt_string != NULL; desc++) {
+			if (ifmw & desc->ifmt_word) {
+				if (seen_option++)
+					strlcat(buf, ",", buflen);
+				len = strlcat(buf, desc->ifmt_string, buflen);
+				assert(len < buflen);
+				buf += len;
+				buflen -= len;
+			}
+		}
 	}
 }

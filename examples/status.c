@@ -147,6 +147,8 @@ print_groups(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 static void
 print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
+	int i;
+
 	/* Outline:
 	 * 1) Determine whether the iface supports SIOGIFMEDIA or SIOGIFXMEDIA
 	 * 2) Get the full media list
@@ -172,6 +174,7 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	 *    tables,  finding an entry with the right media subtype
 	 */
 	struct ifmediareq ifmr;
+	char opts[80];
 
 	if (ifconfig_get_media(lifh, ifa->ifa_name, &ifmr) != 0) {
 		if (ifconfig_err_errtype(lifh) != OK)
@@ -180,16 +183,34 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 			return;	/* Interface doesn't support media info */
 	}
 
-	/*printf("\tmedia: %x (%x)\n", ifmr.ifm_current, ifmr.ifm_active);*/
-	printf("\tmedia: %s %s (%s <%x>)\n",
-	    ifconfig_get_media_type(ifmr.ifm_current),
-	    ifconfig_get_media_subtype(ifmr.ifm_current),
-	    ifconfig_get_media_subtype(ifmr.ifm_active),
-	    IFM_OPTIONS(ifmr.ifm_active)  );
+	printf("\tmedia: %s %s", ifconfig_get_media_type(ifmr.ifm_current),
+	    ifconfig_get_media_subtype(ifmr.ifm_current));
+	if (ifmr.ifm_active != ifmr.ifm_current) {
+		printf(" (%s", ifconfig_get_media_subtype(ifmr.ifm_active));
+		ifconfig_get_media_options_string(ifmr.ifm_active, opts,
+		    sizeof(opts));
+		if (opts[0] != '\0')
+			printf(" <%s>)\n", opts);
+		else
+			printf(")\n");
+	} else
+		printf("\n");
 
 	if (ifmr.ifm_status & IFM_AVALID) {
 		printf("\tstatus: %s\n",
 		    ifconfig_get_media_status(&ifmr));
+	}
+
+	printf("\tsupported media:\n");
+	for (i=0; i < ifmr.ifm_count; i++) {
+		printf("\t\tmedia %s",
+		    ifconfig_get_media_subtype(ifmr.ifm_ulist[i]));
+		ifconfig_get_media_options_string(ifmr.ifm_ulist[i], opts,
+		    sizeof(opts));
+		if (opts[0] != '\0')
+			printf(" mediaopt %s\n", opts);
+		else
+			printf("\n");
 	}
 }
 
@@ -228,9 +249,9 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 
 	/* This paragraph is equivalent to ifconfig's af_other_status funcs */
 	print_nd6(lifh, ifa);
-	print_fib(lifh, ifa);
-	print_groups(lifh, ifa);
 	print_media(lifh, ifa);
+	print_groups(lifh, ifa);
+	print_fib(lifh, ifa);
 
 	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
 		printf("%s", ifs.ascii);
