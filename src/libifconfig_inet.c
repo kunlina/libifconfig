@@ -42,67 +42,48 @@
 #include "libifconfig.h"
 #include "libifconfig_internal.h"
 
+const struct sockaddr_in NULL_SIN = {0, 0, 0, {0}, {0, 0, 0, 0, 0, 0, 0, 0}};
 
 static int
-inet6_prefixlen(struct in6_addr *addr)
+inet_prefixlen(const struct in_addr *addr)
 {
-	int prefixlen = 0;
-	int i;
-
-	for (i=0; i < 4; i++) {
-		int x = ffs(ntohl(addr->__u6_addr.__u6_addr32[i]));
-		prefixlen += x == 0 ? 0 : 33 - x;
-		if (x != 1)
-			break;
-	}
-	return (prefixlen);
+	int x;
+	
+	x = ffs(ntohl(addr->s_addr));
+	return (x == 0 ? 0 : 33 - x);
 }
 
 int
-ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
-    const char *name, struct ifaddrs *ifa, struct ifconfig_inet6_addr *addr)
+ifconfig_inet_get_addrinfo(ifconfig_handle_t *h __unused,
+    const char *name __unused, struct ifaddrs *ifa,
+    struct ifconfig_inet_addr *addr)
 {
-	struct sockaddr_in6 *netmask;
-	struct in6_ifreq ifr6;
-	int s;
-
 	bzero(addr, sizeof(*addr));
 
 	/* Set the address */
-	addr->sin6 = (struct sockaddr_in6*)ifa->ifa_addr;
+	if (ifa->ifa_addr == NULL)
+		return (-1);
+	else
+		addr->sin = (struct sockaddr_in*)ifa->ifa_addr;
 
 	/* Set the destination address */
-	if (ifa->ifa_flags & IFF_POINTOPOINT)
-		addr->dstin6 = (struct sockaddr_in6*)ifa->ifa_dstaddr;
-
-	/* Set the prefixlen */
-	netmask = (struct sockaddr_in6*)ifa->ifa_netmask;
-	addr->prefixlen = inet6_prefixlen(&netmask->sin6_addr);
-
-	/* Set the flags */
-	strlcpy(ifr6.ifr_name, name, sizeof(ifr6.ifr_name));
-	if (ifconfig_socket(h, AF_INET6, &s) != 0) {
-		return (-1);
+	if (ifa->ifa_flags & IFF_POINTOPOINT) {
+		if (ifa->ifa_dstaddr)
+			addr->dst = (struct sockaddr_in*)ifa->ifa_dstaddr;
+		else
+			addr->dst = &NULL_SIN;
 	}
-	ifr6.ifr_addr = *addr->sin6;
-	if (ioctl(s, SIOCGIFAFLAG_IN6, &ifr6) < 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFAFLAG_IN6;
-		h->error.errcode = errno;
-		return (-1);
-	}
-	addr->flags = ifr6.ifr_ifru.ifru_flags6;
 
-	/* Set the lifetimes */
-	memset(&addr->lifetime, 0, sizeof(addr->lifetime));
-	ifr6.ifr_addr = *addr->sin6;
-	if (ioctl(s, SIOCGIFALIFETIME_IN6, &ifr6) < 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFALIFETIME_IN6;
-		h->error.errcode = errno;
-		return (-1);
-	}
-	addr->lifetime = ifr6.ifr_ifru.ifru_lifetime; /* struct copy */
+	/* Set the netmask and prefixlen */
+	if (ifa->ifa_netmask)
+		addr->netmask = (struct sockaddr_in*)ifa->ifa_netmask;
+	else
+		addr->netmask = &NULL_SIN;
+	addr->prefixlen = inet_prefixlen(&addr->netmask->sin_addr);
+
+	/* Set the broadcast */
+	if (ifa->ifa_flags & IFF_BROADCAST)
+		addr->broadcast = (struct sockaddr_in*)ifa->ifa_broadaddr;
 
 	/* Set the vhid */
 	if (ifa->ifa_data && ifa->ifa_data)

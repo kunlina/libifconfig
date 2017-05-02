@@ -57,13 +57,24 @@ struct ifconfig_capabilities {
 	int reqcap;
 };
 
+/** Stores extra info associated with an inet address */
+struct ifconfig_inet_addr {
+	const struct sockaddr_in	*sin;
+	const struct sockaddr_in	*netmask;
+	const struct sockaddr_in	*dst;
+	const struct sockaddr_in	*broadcast;
+	int				prefixlen;
+	uint8_t				vhid;
+};
+
 /** Stores extra info associated with an inet6 address */
 struct ifconfig_inet6_addr {
 	struct sockaddr_in6	*sin6;
 	struct sockaddr_in6	*dstin6;
+	struct in6_addrlifetime	lifetime;
 	int			prefixlen;
 	uint32_t		flags;
-	struct in6_addrlifetime	lifetime;
+	uint8_t			vhid;
 };
 
 /** Retrieves a new state object for use in other API calls.
@@ -166,6 +177,17 @@ const char* ifconfig_get_media_type(int ifmw);
 const char* ifconfig_get_media_subtype(int ifmw);
 const char* ifconfig_get_media_status(const struct ifmediareq *ifmr);
 void ifconfig_get_media_options_string(int ifmw, char *buf, size_t buflen);
+
+/** Retrieve additional information about an inet address
+ * @param h	An open ifconfig state object
+ * @param name	The interface name
+ * @param ifa	Pointer to the the address structure of interest
+ * @param addr	Return argument.  It will be filled with additional information
+ * 		about the address.
+ * @return	0 on success, nonzero on failure.
+ */
+int ifconfig_inet_get_addrinfo(ifconfig_handle_t *h,
+    const char *name, struct ifaddrs *ifa, struct ifconfig_inet_addr *addr);
 
 /** Retrieve additional information about an inet6 address
  * @param h	An open ifconfig state object

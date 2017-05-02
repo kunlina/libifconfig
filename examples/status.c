@@ -53,31 +53,25 @@
 static void
 print_inet4_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
+	struct ifconfig_inet_addr addr;
 	char addr_buf[NI_MAXHOST];
-	struct sockaddr_in *sin, *dst, null_sin, *mask, *bcast;
 
-	memset(&null_sin, 0, sizeof(null_sin));
-	sin = (struct sockaddr_in*)ifa->ifa_addr;
-	if (sin == NULL)
+	if (ifconfig_inet_get_addrinfo(lifh, ifa->ifa_name, ifa, &addr) != 0)
 		return;
-	inet_ntop(AF_INET, &sin->sin_addr, addr_buf, sizeof(addr_buf));
+
+	inet_ntop(AF_INET, &addr.sin->sin_addr, addr_buf, sizeof(addr_buf));
 	printf("\tinet %s", addr_buf);
-	if (ifa->ifa_flags & IFF_POINTOPOINT) {
-		dst = (struct sockaddr_in*)ifa->ifa_dstaddr;
-		if (dst == NULL)
-			dst = &null_sin;
-		printf(" --> %s", inet_ntoa(sin->sin_addr));
-	}
-	mask = (struct sockaddr_in*)ifa->ifa_netmask;
-	if (mask == NULL)
-		mask = &null_sin;
-	printf(" netmask 0x%lx ", (unsigned long)ntohl(mask->sin_addr.s_addr));
-	if (ifa->ifa_flags & IFF_BROADCAST) {
-		bcast = (struct sockaddr_in*)ifa->ifa_broadaddr;
-		if (bcast != NULL && bcast->sin_addr.s_addr != 0)
-			printf("broadcast %s ", inet_ntoa(bcast->sin_addr));
-	}
-	/* TODO: print vhid*/
+
+	if (addr.dst)
+		printf(" --> %s", inet_ntoa(addr.dst->sin_addr));
+
+	printf(" netmask 0x%x ", ntohl(addr.netmask->sin_addr.s_addr));
+
+	if (addr.broadcast != NULL && addr.broadcast->sin_addr.s_addr != 0)
+		printf("broadcast %s ", inet_ntoa(addr.broadcast->sin_addr));
+
+	if (addr.vhid != 0)
+		printf("vhid %d ", addr.vhid);
 	printf("\n");
 }
 
@@ -144,7 +138,10 @@ print_inet6_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		} else
 			printf("infty ");
 	}
-	// TODO: print vhid
+
+	/* Print the vhid */
+	if (addr.vhid != 0)
+		printf("vhid %d ", addr.vhid);
 	printf("\n");
 }
 
