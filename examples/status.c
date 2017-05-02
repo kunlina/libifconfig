@@ -38,6 +38,7 @@
 #include <net/if_media.h>
 #include <net/if_types.h>
 #include <netinet/in.h>
+#include <netinet/ip_carp.h>
 #include <netinet6/in6_var.h>
 #include <netinet6/nd6.h>
 
@@ -49,6 +50,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libifconfig.h>
+
+static const char *carp_states[] = { CARP_STATES };
+
+static void
+print_carp(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	struct carpreq carpr[CARP_MAXVHID];
+	int i;
+
+	if (ifconfig_carp_get_info(lifh, ifa->ifa_name, carpr, CARP_MAXVHID))
+		return;	/* Probably not configured on this interface */
+
+	for (i = 0; i < carpr[0].carpr_count; i++) {
+		printf("\tcarp: %s vhid %d advbase %d advskew %d",
+		    carp_states[carpr[i].carpr_state], carpr[i].carpr_vhid,
+		    carpr[i].carpr_advbase, carpr[i].carpr_advskew);
+		printf("\n");
+	}
+}
 
 static void
 print_inet4_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
@@ -352,6 +372,7 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	print_media(lifh, ifa);
 	print_groups(lifh, ifa);
 	print_fib(lifh, ifa);
+	print_carp(lifh, ifa);
 
 	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
 		printf("%s", ifs.ascii);

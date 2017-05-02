@@ -47,6 +47,7 @@ typedef enum {
 struct ifconfig_handle;
 typedef struct ifconfig_handle ifconfig_handle_t;
 
+struct carpreq;
 struct ifaddrs;
 struct in6_ndireq;
 
@@ -177,6 +178,9 @@ const char* ifconfig_get_media_type(int ifmw);
 const char* ifconfig_get_media_subtype(int ifmw);
 const char* ifconfig_get_media_status(const struct ifmediareq *ifmr);
 void ifconfig_get_media_options_string(int ifmw, char *buf, size_t buflen);
+
+int ifconfig_carp_get_info(ifconfig_handle_t *h, const char *name,
+    struct carpreq *carpr, int ncarpr);
 
 /** Retrieve additional information about an inet address
  * @param h	An open ifconfig state object
