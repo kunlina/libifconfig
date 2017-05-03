@@ -50,6 +50,10 @@ typedef struct ifconfig_handle ifconfig_handle_t;
 struct carpreq;
 struct ifaddrs;
 struct in6_ndireq;
+struct lagg_reqall;
+struct lagg_reqflags;
+struct lagg_reqopts;
+struct lagg_reqport;
 
 struct ifconfig_capabilities {
 	/** Current capabilities (ifconfig prints this as 'options')*/
@@ -76,6 +80,13 @@ struct ifconfig_inet6_addr {
 	int			prefixlen;
 	uint32_t		flags;
 	uint8_t			vhid;
+};
+
+/** Stores extra info associated with a lagg(4) interface */
+struct ifconfig_lagg_status {
+	struct lagg_reqall *ra;
+	struct lagg_reqopts *ro;
+	struct lagg_reqflags *rf;
 };
 
 /** Retrieves a new state object for use in other API calls.
@@ -203,6 +214,14 @@ int ifconfig_inet_get_addrinfo(ifconfig_handle_t *h,
  */
 int ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
     const char *name, struct ifaddrs *ifa, struct ifconfig_inet6_addr *addr);
+
+int ifconfig_lagg_get_status(ifconfig_handle_t *h,
+    const char *name, struct ifconfig_lagg_status **lagg_status);
+/** Frees the structure returned by ifconfig_lagg_get_status.  Does nothing if
+ * the argument is NULL
+ * @param laggstat	Pointer to the structure to free
+ */
+void ifconfig_lagg_free_lagg_status(struct ifconfig_lagg_status *laggstat);
 
 /** Destroy a virtual interface
  * @param name Interface to destroy

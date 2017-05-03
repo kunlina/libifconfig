@@ -35,6 +35,7 @@
 #include <net/ethernet.h>
 #include <net/if.h>
 #include <net/if_dl.h>
+#include <net/if_lagg.h>
 #include <net/if_media.h>
 #include <net/if_types.h>
 #include <netinet/in.h>
@@ -237,6 +238,71 @@ print_fib(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 }
 
 static void
+print_lagg(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	struct lagg_protos lpr[] = LAGG_PROTOS;
+	struct ifconfig_lagg_status *ls;
+	struct lacp_opreq *lp;
+	const char *proto = "<unknown>";
+	int i;
+
+	if (ifconfig_lagg_get_status(lifh, ifa->ifa_name, &ls) < 0) {
+		if (ifconfig_err_errno(lifh) == EINVAL)
+			return;
+		err(1, "Failed to get interface lagg status");
+	}
+
+	/* First print the proto */
+	for (i = 0; i < nitems(lpr); i++) {
+		if (ls->ra->ra_proto == lpr[i].lpr_proto) {
+			proto = lpr[i].lpr_name;
+			break;
+		}
+	}
+	printf("\tlaggproto %s", proto);
+
+	/* Now print the lagg hash */
+	if (ls->rf->rf_flags & LAGG_F_HASHMASK) {
+		const char *sep = "";
+
+		printf(" lagghash ");
+		if (ls->rf->rf_flags & LAGG_F_HASHL2) {
+			printf("%sl2", sep);
+			sep = ",";
+		}
+		if (ls->rf->rf_flags & LAGG_F_HASHL3) {
+			printf("%sl3", sep);
+			sep = ",";
+		}
+		if (ls->rf->rf_flags & LAGG_F_HASHL4) {
+			printf("%sl4", sep);
+			sep = ",";
+		}
+	}
+	putchar('\n');
+	printf("\tlagg options:\n");
+	printf("\t\tflags=%x", ls->ro->ro_opts);
+	putchar('\n');
+	printf("\t\tflowid_shift: %d\n", ls->ro->ro_flowid_shift);
+	if (ls->ra->ra_proto == LAGG_PROTO_ROUNDROBIN)
+		printf("\t\trr_limit: %d\n", ls->ro->ro_bkt);
+	printf("\tlagg statistics:\n");
+	printf("\t\tactive ports: %d\n", ls->ro->ro_active);
+	printf("\t\tflapping: %u\n", ls->ro->ro_flapping);
+	for (i = 0; i < ls->ra->ra_ports; i++) {
+		lp = (struct lacp_opreq *)&ls->ra->ra_port[i].rp_lacpreq;
+		printf("\tlaggport: %s ", ls->ra->ra_port[i].rp_portname);
+		printf("flags=%x", ls->ra->ra_port[i].rp_flags);
+		if (ls->ra->ra_proto == LAGG_PROTO_LACP)
+			printf(" state=%x", lp->actor_state);
+		putchar('\n');
+	}
+
+	printf("\n");
+	ifconfig_lagg_free_lagg_status(ls);
+}
+
+static void
 print_groups(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	struct ifgroupreq ifgr;
@@ -373,6 +439,7 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	print_groups(lifh, ifa);
 	print_fib(lifh, ifa);
 	print_carp(lifh, ifa);
+	print_lagg(lifh, ifa);
 
 	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
 		printf("%s", ifs.ascii);
