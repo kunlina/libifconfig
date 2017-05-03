@@ -398,6 +398,7 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		else
 			printf("\n");
 	}
+	free(ifmr.ifm_ulist);
 }
 
 static void

@@ -640,6 +640,7 @@ ifconfig_get_media(ifconfig_handle_t *h, const char *name,
 		h->error.errtype = IOCTL;
 		h->error.ioctl_request = cmd;
 		h->error.errcode = errno;
+		free(media_list);
 		return (-1);
 	}
 
