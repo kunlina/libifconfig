@@ -131,7 +131,8 @@ ifconfig_err_ioctlreq(ifconfig_handle_t *h)
 }
 
 int
-ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb)
+ifconfig_foreach_iface(ifconfig_handle_t *h,
+    ifconfig_foreach_func_t cb, void *udata)
 {
 	int ret;
 
@@ -143,7 +144,7 @@ ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb)
 		for (ifa = h->ifap; ifa; ifa=ifa->ifa_next) {
 			if (ifname !=ifa->ifa_name) {
 				ifname = ifa->ifa_name;
-				cb(h, ifa);
+				cb(h, ifa, udata);
 			}
 		}
 	}
@@ -153,7 +154,7 @@ ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb)
 
 void
 ifconfig_foreach_ifaddr(ifconfig_handle_t *h, struct ifaddrs *ifa,
-    ifconfig_foreach_func_t cb)
+    ifconfig_foreach_func_t cb, void *udata)
 {
 	struct ifaddrs *ift;
 
@@ -162,7 +163,7 @@ ifconfig_foreach_ifaddr(ifconfig_handle_t *h, struct ifaddrs *ifa,
 	        && ift->ifa_addr != NULL
 		&& strcmp(ift->ifa_name, ifa->ifa_name) == 0;
 	    ift = ift->ifa_next) {
-		cb(h, ift);
+		cb(h, ift, udata);
 	}
 }
 

@@ -120,25 +120,27 @@ ifconfig_errtype ifconfig_err_errtype(ifconfig_handle_t *h);
 /** Retrieves the errno associated with the error, if any. */
 int ifconfig_err_errno(ifconfig_handle_t *h);
 
-/* TODO: should we add an opaque user-provided data pointer ? */
 typedef void (*ifconfig_foreach_func_t)(ifconfig_handle_t *h,
-    struct ifaddrs *ifa);
+    struct ifaddrs *ifa, void *udata);
 
 /** Iterate over every network interface
  * @param h	An open ifconfig state object
  * @param cb	A callback function to call with a pointer to each interface
+ * @param udata	An opaque value that will be passed to the callback.
  * @return	0 on success, nonzero if the list could not be iterated
  */
-int ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb);
+int ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb,
+    void *udata);
 
 /** Iterate over every address on a single network interface
  * @param h	An open ifconfig state object
  * @param ifa	A pointer that was supplied by a previous call to
  * 		ifconfig_foreach_iface
+ * @param udata	An opaque value that will be passed to the callback.
  * @param cb	A callback function to call with a pointer to each ifaddr
  */
 void ifconfig_foreach_ifaddr(ifconfig_handle_t *h, struct ifaddrs *ifa,
-    ifconfig_foreach_func_t cb);
+    ifconfig_foreach_func_t cb, void *udata);
 
 /** If error type was IOCTL, this identifies which request failed. */
 unsigned long ifconfig_err_ioctlreq(ifconfig_handle_t *h);

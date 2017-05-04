@@ -190,7 +190,7 @@ print_link_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 }
 
 static void
-print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa, void *udata __unused)
 {
 	switch (ifa->ifa_addr->sa_family) {
 	case AF_INET:
@@ -402,7 +402,7 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 }
 
 static void
-print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa, void *udata __unused)
 {
 	int metric, mtu;
 	char *description = NULL;
@@ -432,7 +432,7 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	} else
 		err(1, "Failed to get interface capabilities");
 
-	ifconfig_foreach_ifaddr(lifh, ifa, print_ifaddr);
+	ifconfig_foreach_ifaddr(lifh, ifa, print_ifaddr, NULL);
 
 	/* This paragraph is equivalent to ifconfig's af_other_status funcs */
 	print_nd6(lifh, ifa);
@@ -460,7 +460,7 @@ main(int argc, char *argv[])
 	if (lifh == NULL)
 		errx(1, "Failed to open libifconfig handle.");
 
-	if (ifconfig_foreach_iface(lifh, print_iface) != 0)
+	if (ifconfig_foreach_iface(lifh, print_iface, NULL) != 0)
 		err(1, "Failed to get interfaces");
 
 	ifconfig_close(lifh);
