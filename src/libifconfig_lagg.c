@@ -58,7 +58,6 @@ ifconfig_lagg_get_status(ifconfig_handle_t *h,
     const char *name, struct ifconfig_lagg_status **lagg_status)
 {
 	struct _ifconfig_lagg_status *ls;
-	int s;
 
 	ls = calloc(1, sizeof(struct _ifconfig_lagg_status));
 	if (ls == NULL) {
@@ -75,21 +74,14 @@ ifconfig_lagg_get_status(ifconfig_handle_t *h,
 	ls->ra.ra_size = sizeof(ls->rpbuf);
 
 	strlcpy(ls->ro.ro_ifname, name, sizeof(ls->ro.ro_ifname));
-	if (ifconfig_socket(h, AF_LOCAL, &s) != 0) {
-		free(ls);
-		return (-1);
-	}
-	ioctl(s, SIOCGLAGGOPTS, &ls->ro);
+	ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGLAGGOPTS, &ls->ro);
 
 	strlcpy(ls->rf.rf_ifname, name, sizeof(ls->rf.rf_ifname));
-	if (ioctl(s, SIOCGLAGGFLAGS, &ls->rf) != 0)
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGLAGGFLAGS, &ls->rf) != 0)
 		ls->rf.rf_flags = 0;
 
 	strlcpy(ls->ra.ra_ifname, name, sizeof(ls->ra.ra_ifname));
-	if (ioctl(s, SIOCGLAGG, &ls->ra) != 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFAFLAG_IN6;
-		h->error.errcode = errno;
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGLAGG, &ls->ra) != 0) {
 		free(ls);
 		return (-1);
 	}

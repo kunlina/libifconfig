@@ -82,4 +82,4 @@ int ifconfig_socket(ifconfig_handle_t *h, const int addressfamily, int *s);
 
 /** Function to wrap ioctl() and automatically populate ifconfig_errstate when appropriate.*/
 int ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
-    unsigned long request, struct ifreq *ifr);
+    unsigned long request, void *data);

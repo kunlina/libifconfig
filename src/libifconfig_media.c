@@ -327,13 +327,8 @@ ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
 {
 	struct _ifconfig_media_status *ms, *ms2;
 	unsigned long cmd = SIOCGIFXMEDIA;
-	int s;
 
 	*ifmr = NULL;
-	if (ifconfig_socket(h, AF_LOCAL, &s) != 0) {
-		return (-1);
-	}
-
 	ms = calloc(1, sizeof(*ms));
 	if (ms == NULL) {
 		h->error.errtype = OTHER;
@@ -346,9 +341,9 @@ ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
 	/*
 	 * Check if interface supports extended media types.
 	 */
-	if (ioctl(s, cmd, &ms->ifmr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, cmd, &ms->ifmr) < 0) {
 		cmd = SIOCGIFMEDIA;
-		if (ioctl(s, cmd, &ms->ifmr) < 0) {
+		if (ifconfig_ioctlwrap(h, AF_LOCAL, cmd, &ms->ifmr) < 0) {
 			/* Interface doesn't support SIOC{G,S}IFMEDIA.  */
 			h->error.errtype = OK;
 			free(ms);
@@ -369,10 +364,7 @@ ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
 	}
 	ms2->ifmr.ifm_ulist = &ms2->medialist[0];
 
-	if (ioctl(s, cmd, &ms2->ifmr) < 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = cmd;
-		h->error.errcode = errno;
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, cmd, &ms2->ifmr) < 0) {
 		free(ms2);
 		return (-1);
 	}

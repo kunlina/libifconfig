@@ -53,7 +53,7 @@ ifconfig_getifaddrs(ifconfig_handle_t *h)
 
 int
 ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
-    unsigned long request, struct ifreq *ifr)
+    unsigned long request, void *data)
 {
 	int s;
 
@@ -61,7 +61,7 @@ ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
 		return (-1);
 	}
 
-	if (ioctl(s, request, ifr) != 0) {
+	if (ioctl(s, request, data) != 0) {
 		h->error.errtype = IOCTL;
 		h->error.ioctl_request = request;
 		h->error.errcode = errno;

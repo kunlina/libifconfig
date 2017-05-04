@@ -59,22 +59,12 @@ isnd6defif(ifconfig_handle_t *h, const char *name)
 {
 	struct in6_ndifreq ndifreq;
 	unsigned int ifindex;
-	int s, error;
-
-	if (ifconfig_socket(h, AF_INET6, &s) != 0) {
-		return (-1);
-	}
 
 	memset(&ndifreq, 0, sizeof(ndifreq));
 	strlcpy(ndifreq.ifname, name, sizeof(ndifreq.ifname));
 	ifindex = if_nametoindex(ndifreq.ifname);
-	error = ioctl(s, SIOCGDEFIFACE_IN6, (caddr_t)&ndifreq);
-	if (error) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGDEFIFACE_IN6;
-		h->error.errcode = errno;
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGDEFIFACE_IN6, &ndifreq) < 0)
 		return (false);
-	}
 	h->error.errtype = OK;
 	return (ndifreq.ifindex == ifindex);
 }
@@ -349,19 +339,10 @@ int
 ifconfig_get_nd6(ifconfig_handle_t *h, const char *name,
     struct in6_ndireq *nd)
 {
-	int s;
-
 	memset(nd, 0, sizeof(*nd));
 	strlcpy(nd->ifname, name, sizeof(nd->ifname));
-	if (ifconfig_socket(h, AF_INET6, &s) != 0) {
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGIFINFO_IN6, nd) == -1)
 		return (-1);
-	}
-	if (ioctl(s, SIOCGIFINFO_IN6, nd) == -1) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFINFO_IN6;
-		h->error.errcode = errno;
-		return (-1);
-	}
 	if (isnd6defif(h, name))
 		nd->ndi.flags |= ND6_IFF_DEFAULTIF;
 	else if (h->error.errtype != OK)
@@ -459,24 +440,16 @@ ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
 int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
     struct ifgroupreq *ifgr)
 {
-	int s, len;
-
-	if (ifconfig_socket(h, AF_LOCAL, &s) != 0) {
-		return (-1);
-	}
+	int len;
 
 	memset(ifgr, 0, sizeof(*ifgr));
 	strlcpy(ifgr->ifgr_name, name, IFNAMSIZ);
 
-	if (ioctl(s, SIOCGIFGROUP, (caddr_t)ifgr) == -1) {
-		if (errno == EINVAL || errno == ENOTTY)
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFGROUP, ifgr) == -1) {
+		if (h->error.errcode == EINVAL || h->error.errcode == ENOTTY)
 			return (0);
-		else {
-			h->error.errtype = IOCTL;
-			h->error.ioctl_request = SIOCGIFGROUP;
-			h->error.errcode = errno;
+		else
 			return (-1);
-		}
 	}
 
 	len = ifgr->ifgr_len;
@@ -484,12 +457,8 @@ int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
 	if (ifgr->ifgr_groups == NULL)
 		return (1);
 	bzero(ifgr->ifgr_groups, len);
-	if (ioctl(s, SIOCGIFGROUP, (caddr_t)ifgr) == -1) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFGROUP;
-		h->error.errcode = errno;
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFGROUP, ifgr) == -1)
 		return (-1);
-	}
 
 	return (0);
 }
@@ -498,20 +467,8 @@ int
 ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
     struct ifstat *ifs)
 {
-	int s;
-
-	if (ifconfig_socket(h, AF_LOCAL, &s) != 0) {
-		return (-1);
-	}
-
 	strlcpy(ifs->ifs_name, name, sizeof(ifs->ifs_name));
-	if (ioctl(s, SIOCGIFSTATUS, ifs) < 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFSTATUS;
-		h->error.errcode = errno;
-		return (-1);
-	} else
-		return (0);
+	return (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFSTATUS, ifs));
 }
 
 int

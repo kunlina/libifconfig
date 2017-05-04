@@ -64,7 +64,6 @@ ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
 {
 	struct sockaddr_in6 *netmask;
 	struct in6_ifreq ifr6;
-	int s;
 
 	bzero(addr, sizeof(*addr));
 
@@ -81,14 +80,8 @@ ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
 
 	/* Set the flags */
 	strlcpy(ifr6.ifr_name, name, sizeof(ifr6.ifr_name));
-	if (ifconfig_socket(h, AF_INET6, &s) != 0) {
-		return (-1);
-	}
 	ifr6.ifr_addr = *addr->sin6;
-	if (ioctl(s, SIOCGIFAFLAG_IN6, &ifr6) < 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFAFLAG_IN6;
-		h->error.errcode = errno;
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGIFAFLAG_IN6, &ifr6) < 0) {
 		return (-1);
 	}
 	addr->flags = ifr6.ifr_ifru.ifru_flags6;
@@ -96,10 +89,7 @@ ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
 	/* Set the lifetimes */
 	memset(&addr->lifetime, 0, sizeof(addr->lifetime));
 	ifr6.ifr_addr = *addr->sin6;
-	if (ioctl(s, SIOCGIFALIFETIME_IN6, &ifr6) < 0) {
-		h->error.errtype = IOCTL;
-		h->error.ioctl_request = SIOCGIFALIFETIME_IN6;
-		h->error.errcode = errno;
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGIFALIFETIME_IN6, &ifr6) < 0) {
 		return (-1);
 	}
 	addr->lifetime = ifr6.ifr_ifru.ifru_lifetime; /* struct copy */
