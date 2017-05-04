@@ -54,14 +54,6 @@
 #include "libifconfig_internal.h"
 
 
-/*static void	domediaopt(const char *, int, int);*/
-/*static int	get_media_subtype(int, const char *);*/
-/*static int	get_media_mode(int, const char *);*/
-/*static int	get_media_options(int, const char *);*/
-/*static int	lookup_media_word(struct ifmedia_description *, const char *);*/
-/*static void	print_media_word(int, int);*/
-/*static void	print_media_word_ifconfig(int);*/
-
 static struct ifmedia_description *get_toptype_desc(int);
 static struct ifmedia_type_to_subtype *get_toptype_ttos(int);
 static struct ifmedia_description *get_subtype_desc(int,
@@ -475,7 +467,7 @@ static struct ifmedia_description *get_mode_desc(int ifmw,
 
 #endif
 const char*
-ifconfig_get_media_type(int ifmw)
+ifconfig_media_get_type(int ifmw)
 {
 	struct ifmedia_description *desc;
 	/*int seen_option = 0, i;*/
@@ -490,7 +482,7 @@ ifconfig_get_media_type(int ifmw)
 }
 
 const char*
-ifconfig_get_media_subtype(int ifmw)
+ifconfig_media_get_subtype(int ifmw)
 {
 	struct ifmedia_description *desc;
 	struct ifmedia_type_to_subtype *ttos;
@@ -608,7 +600,7 @@ struct _ifconfig_media_status {
 };
 
 int
-ifconfig_get_media(ifconfig_handle_t *h, const char *name,
+ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
     struct ifmediareq **ifmr)
 {
 	struct _ifconfig_media_status *ms, *ms2;
@@ -668,7 +660,7 @@ ifconfig_get_media(ifconfig_handle_t *h, const char *name,
 }
 
 const char*
-ifconfig_get_media_status(const struct ifmediareq *ifmr)
+ifconfig_media_get_status(const struct ifmediareq *ifmr)
 {
 	switch (IFM_TYPE(ifmr->ifm_active)) {
 	case IFM_ETHER:
@@ -703,7 +695,7 @@ ifconfig_get_media_status(const struct ifmediareq *ifmr)
 }
 
 void
-ifconfig_get_media_options_string(int ifmw, char *buf, size_t buflen)
+ifconfig_media_get_options_string(int ifmw, char *buf, size_t buflen)
 {
 	struct ifmedia_type_to_subtype *ttos;
 	struct ifmedia_description *desc;

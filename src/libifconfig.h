@@ -175,18 +175,19 @@ int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
     struct ifgroupreq *ifgr);
 int ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
     struct ifstat *stat);
+
 /** Retrieve the interface media information
  * @param h	An open ifconfig state object
  * @param name	The interface name
  * @param ifmr	Return argument.  The caller is responsible for freeing it
  * @return	0 on success, nonzero on failure
  */
-int ifconfig_get_media(ifconfig_handle_t *h, const char *name,
+int ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
     struct ifmediareq **ifmr);
-const char* ifconfig_get_media_type(int ifmw);
-const char* ifconfig_get_media_subtype(int ifmw);
-const char* ifconfig_get_media_status(const struct ifmediareq *ifmr);
-void ifconfig_get_media_options_string(int ifmw, char *buf, size_t buflen);
+const char* ifconfig_media_get_type(int ifmw);
+const char* ifconfig_media_get_subtype(int ifmw);
+const char* ifconfig_media_get_status(const struct ifmediareq *ifmr);
+void ifconfig_media_get_options_string(int ifmw, char *buf, size_t buflen);
 
 int ifconfig_carp_get_info(ifconfig_handle_t *h, const char *name,
     struct carpreq *carpr, int ncarpr);
