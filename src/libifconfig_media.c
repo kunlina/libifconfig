@@ -600,50 +600,70 @@ print_media_word_ifconfig(int ifmw)
 /***************************************************************************
  * Above this point, this file is mostly copied from sbin/ifconfig/ifmedia.c
  ***************************************************************************/
+
+/* Internal structure used for allocations and frees */
+struct _ifconfig_media_status {
+	struct ifmediareq	ifmr;
+	int			medialist[0];
+};
+
 int
 ifconfig_get_media(ifconfig_handle_t *h, const char *name,
-    struct ifmediareq *ifmr)
+    struct ifmediareq **ifmr)
 {
-	int *media_list, s;
+	struct _ifconfig_media_status *ms, *ms2;
 	unsigned long cmd = SIOCGIFXMEDIA;
+	int s;
 
-	(void) memset(ifmr, 0, sizeof(*ifmr));
-	(void) strlcpy(ifmr->ifm_name, name, sizeof(ifmr->ifm_name));
-
+	*ifmr = NULL;
 	if (ifconfig_socket(h, AF_LOCAL, &s) != 0) {
 		return (-1);
 	}
 
-	/*
-	 * Check if interface supports extended media types.
-	 */
-	if (ioctl(s, cmd, (caddr_t)ifmr) < 0) {
-		cmd = SIOCGIFMEDIA;
-		if (ioctl(s, cmd, (caddr_t)ifmr) < 0) {
-			/* Interface doesn't support SIOC{G,S}IFMEDIA.  */
-			h->error.errtype = OK;
-			return (-1);
-		}
-	}
-	if (ifmr->ifm_count == 0)
-		return (0);	/* Interface has no media types ?*/
-
-	media_list = (int *)calloc(ifmr->ifm_count, sizeof(int));
-	if (media_list == NULL) {
+	ms = calloc(1, sizeof(*ms));
+	if (ms == NULL) {
 		h->error.errtype = OTHER;
 		h->error.errcode = ENOMEM;
 		return (-1);
 	}
-	ifmr->ifm_ulist = media_list;
+	(void) memset(ms, 0, sizeof(*ms));
+	(void) strlcpy(ms->ifmr.ifm_name, name, sizeof(ms->ifmr.ifm_name));
 
-	if (ioctl(s, cmd, (caddr_t)ifmr) < 0) {
+	/*
+	 * Check if interface supports extended media types.
+	 */
+	if (ioctl(s, cmd, &ms->ifmr) < 0) {
+		cmd = SIOCGIFMEDIA;
+		if (ioctl(s, cmd, &ms->ifmr) < 0) {
+			/* Interface doesn't support SIOC{G,S}IFMEDIA.  */
+			h->error.errtype = OK;
+			free(ms);
+			return (-1);
+		}
+	}
+	if (ms->ifmr.ifm_count == 0) {
+		*ifmr = &ms->ifmr;
+		return (0);	/* Interface has no media types ?*/
+	}
+
+	ms2 = realloc(ms, sizeof(*ms) + sizeof(int) * ms->ifmr.ifm_count);
+	if (ms2 == NULL) {
+		h->error.errtype = OTHER;
+		h->error.errcode = ENOMEM;
+		free(ms);
+		return (-1);
+	}
+	ms2->ifmr.ifm_ulist = &ms2->medialist[0];
+
+	if (ioctl(s, cmd, &ms2->ifmr) < 0) {
 		h->error.errtype = IOCTL;
 		h->error.ioctl_request = cmd;
 		h->error.errcode = errno;
-		free(media_list);
+		free(ms2);
 		return (-1);
 	}
 
+	*ifmr = &ms2->ifmr;
 	return (0);
 }
 

@@ -178,15 +178,11 @@ int ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
 /** Retrieve the interface media information
  * @param h	An open ifconfig state object
  * @param name	The interface name
- * @param ifgr	return argument.  The caller is responsible for freeing
- * 		ifmr->media_list
+ * @param ifmr	Return argument.  The caller is responsible for freeing it
  * @return	0 on success, nonzero on failure
- * TODO: instead of returning ifmr as a return argument and requiring the
- * caller to free a portion of it, should we return ifmr as a return value and
- * require the caller to free the whole thing?
  */
 int ifconfig_get_media(ifconfig_handle_t *h, const char *name,
-    struct ifmediareq *ifmr);
+    struct ifmediareq **ifmr);
 const char* ifconfig_get_media_type(int ifmw);
 const char* ifconfig_get_media_subtype(int ifmw);
 const char* ifconfig_get_media_status(const struct ifmediareq *ifmr);

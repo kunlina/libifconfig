@@ -359,7 +359,7 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	 *    aliases.  Iterate through the resulting ifmedia_description
 	 *    tables,  finding an entry with the right media subtype
 	 */
-	struct ifmediareq ifmr;
+	struct ifmediareq *ifmr;
 	char opts[80];
 
 	if (ifconfig_get_media(lifh, ifa->ifa_name, &ifmr) != 0) {
@@ -369,11 +369,11 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 			return;	/* Interface doesn't support media info */
 	}
 
-	printf("\tmedia: %s %s", ifconfig_get_media_type(ifmr.ifm_current),
-	    ifconfig_get_media_subtype(ifmr.ifm_current));
-	if (ifmr.ifm_active != ifmr.ifm_current) {
-		printf(" (%s", ifconfig_get_media_subtype(ifmr.ifm_active));
-		ifconfig_get_media_options_string(ifmr.ifm_active, opts,
+	printf("\tmedia: %s %s", ifconfig_get_media_type(ifmr->ifm_current),
+	    ifconfig_get_media_subtype(ifmr->ifm_current));
+	if (ifmr->ifm_active != ifmr->ifm_current) {
+		printf(" (%s", ifconfig_get_media_subtype(ifmr->ifm_active));
+		ifconfig_get_media_options_string(ifmr->ifm_active, opts,
 		    sizeof(opts));
 		if (opts[0] != '\0')
 			printf(" <%s>)\n", opts);
@@ -382,23 +382,23 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	} else
 		printf("\n");
 
-	if (ifmr.ifm_status & IFM_AVALID) {
+	if (ifmr->ifm_status & IFM_AVALID) {
 		printf("\tstatus: %s\n",
-		    ifconfig_get_media_status(&ifmr));
+		    ifconfig_get_media_status(ifmr));
 	}
 
 	printf("\tsupported media:\n");
-	for (i=0; i < ifmr.ifm_count; i++) {
+	for (i=0; i < ifmr->ifm_count; i++) {
 		printf("\t\tmedia %s",
-		    ifconfig_get_media_subtype(ifmr.ifm_ulist[i]));
-		ifconfig_get_media_options_string(ifmr.ifm_ulist[i], opts,
+		    ifconfig_get_media_subtype(ifmr->ifm_ulist[i]));
+		ifconfig_get_media_options_string(ifmr->ifm_ulist[i], opts,
 		    sizeof(opts));
 		if (opts[0] != '\0')
 			printf(" mediaopt %s\n", opts);
 		else
 			printf("\n");
 	}
-	free(ifmr.ifm_ulist);
+	free(ifmr);
 }
 
 static void
