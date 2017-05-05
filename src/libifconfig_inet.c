@@ -42,7 +42,7 @@
 #include "libifconfig.h"
 #include "libifconfig_internal.h"
 
-const struct sockaddr_in NULL_SIN = {0, 0, 0, {0}, {0, 0, 0, 0, 0, 0, 0, 0}};
+const static struct sockaddr_in NULL_SIN;
 
 static int
 inet_prefixlen(const struct in_addr *addr)
