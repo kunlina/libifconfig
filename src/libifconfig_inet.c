@@ -86,7 +86,7 @@ ifconfig_inet_get_addrinfo(ifconfig_handle_t *h __unused,
 		addr->broadcast = (struct sockaddr_in*)ifa->ifa_broadaddr;
 
 	/* Set the vhid */
-	if (ifa->ifa_data && ifa->ifa_data)
+	if (ifa->ifa_data)
 		addr->vhid = ((struct if_data*)ifa->ifa_data)->ifi_vhid;
 
 	return (0);
