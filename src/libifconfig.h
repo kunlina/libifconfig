@@ -214,8 +214,14 @@ int ifconfig_inet_get_addrinfo(ifconfig_handle_t *h,
 int ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
     const char *name, struct ifaddrs *ifa, struct ifconfig_inet6_addr *addr);
 
-int ifconfig_lagg_get_status(ifconfig_handle_t *h,
+/** Retrieve additional information about a lagg(4) interface */
+int ifconfig_lagg_get_lagg_status(ifconfig_handle_t *h,
     const char *name, struct ifconfig_lagg_status **lagg_status);
+
+/** Retrieve additional information about a member of a lagg(4) interface */
+int ifconfig_lagg_get_laggport_status(ifconfig_handle_t *h,
+    const char *name, struct lagg_reqport *rp);
+
 /** Frees the structure returned by ifconfig_lagg_get_status.  Does nothing if
  * the argument is NULL
  * @param laggstat	Pointer to the structure to free

@@ -246,7 +246,7 @@ print_lagg(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	const char *proto = "<unknown>";
 	int i;
 
-	if (ifconfig_lagg_get_status(lifh, ifa->ifa_name, &ls) < 0) {
+	if (ifconfig_lagg_get_lagg_status(lifh, ifa->ifa_name, &ls) < 0) {
 		if (ifconfig_err_errno(lifh) == EINVAL)
 			return;
 		err(1, "Failed to get interface lagg status");
@@ -300,6 +300,22 @@ print_lagg(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 
 	printf("\n");
 	ifconfig_lagg_free_lagg_status(ls);
+}
+
+static void
+print_laggport(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
+{
+	struct lagg_reqport rp;
+
+	if (ifconfig_lagg_get_laggport_status(lifh, ifa->ifa_name, &rp) < 0) {
+		if (ifconfig_err_errno(lifh) == EINVAL ||
+		    ifconfig_err_errno(lifh) == ENOENT)
+			return;
+		else
+			err(1, "Failed to get lagg port status");
+	}
+
+	printf("\tlaggdev: %s\n", rp.rp_ifname);
 }
 
 static void
@@ -441,6 +457,7 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa, void *udata __unused)
 	print_fib(lifh, ifa);
 	print_carp(lifh, ifa);
 	print_lagg(lifh, ifa);
+	print_laggport(lifh, ifa);
 
 	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
 		printf("%s", ifs.ascii);
