@@ -293,11 +293,10 @@ ifconfig_media_get_type(int ifmw)
 
 	/* Find the top-level interface type. */
 	desc = get_toptype_desc(ifmw);
-	if (desc->ifmt_string == NULL) {
+	if (desc->ifmt_string == NULL)
 		return("<unknown type>");
-	} else {
+	else
 		return(desc->ifmt_string);
-	}
 }
 
 const char*

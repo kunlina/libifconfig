@@ -57,9 +57,8 @@ ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
 {
 	int s;
 
-	if (ifconfig_socket(h, addressfamily, &s) != 0) {
+	if (ifconfig_socket(h, addressfamily, &s) != 0)
 		return (-1);
-	}
 
 	if (ioctl(s, request, data) != 0) {
 		h->error.errtype = IOCTL;
