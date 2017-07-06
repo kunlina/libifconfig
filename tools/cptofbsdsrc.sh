@@ -1,13 +1,14 @@
 #!/bin/sh
 gitdir="${1}"
 svndir="${2}"
+patchdir="${3}"
 
-if [ ! -d "${1}" ]; then
+if [ ! -d "${gitdir}" ]; then
     echo "Source not a directory"
     exit
 fi
 
-if [ ! -d "${2}" ]; then
+if [ ! -d "${svndir}" ]; then
     echo "Destination not a directory"
     exit
 fi
@@ -33,15 +34,30 @@ cp -R "${gitdir}/src" "${svndir}/lib/libifconfig"
 
 cp "${gitdir}/Makefile.base" "${svndir}/lib/libifconfig/Makefile"
 # Ugly hack to not copy example_ executables.
-make -C "${gitdir}/examples" clean
+make -C "${gitdir}/examples" clean cleandepend
 cp -Rf "${gitdir}/examples" "${svndir}/share/examples/libifconfig"
+# Remove Makefile, because it's tailored for standalone builds
+#
+# Should copy in a Makefile.base once libifconfig is no longer marked private 
+# in base.
+rm "${svndir}/share/examples/libifconfig/Makefile"
 
+# 
+# Only make patches if third parameter (patch directory) is provided
+# Create one patch for libifconfig itself, and one for example files.
+# A separate patch for manpage(s) should be made once manpages are a thing.
+# 
+if [ -d "${patchdir}" ]; then
+    cd "${svndir}"
+    echo "Creating libifconfig patch file for upstreaming"
+    svn add "${svndir}/lib/libifconfig"
+    svn diff --diff-cmd=diff -x -U999999 . > "${patchdir}/libifconfig.patch"
+    svn revert -R "${svndir}/lib/libifconfig"
 
-svn add "${svndir}/lib/libifconfig"
-svn add "${svndir}/share/examples/libifconfig"
+    echo "Creating libifconfig examples patch file for upstreaming"
+    svn add "${svndir}/share/examples/libifconfig"
+    svn diff --diff-cmd=diff -x -U999999 . > "${patchdir}/libifconfig_examples.patch"
+    svn revert -R "${svndir}/share/examples/libifconfig"
 
-echo "Storing diff as ~/libifconfig.patch"
-cd "${svndir}"
-svn diff --diff-cmd=diff -x -U999999 . > ~/libifconfig.patch
-
-echo "End of script. Yay."
+    echo "End of script. Yay."
+fi
