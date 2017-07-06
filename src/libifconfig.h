@@ -37,7 +37,7 @@ typedef enum {
  * pointer to it for library use.
  */
 struct ifconfig_handle;
-typedef struct ifconfig_handle   ifconfig_handle_t;
+typedef struct ifconfig_handle ifconfig_handle_t;
 
 struct ifconfig_capabilities {
 	/** Current capabilities (ifconfig prints this as 'options')*/
