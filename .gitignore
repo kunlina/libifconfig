@@ -33,7 +33,7 @@
 
 # Stage stuff
 stage/**
-
+examples/.depend.*
 # local dev envorinment stuff
 .vscode/**
 **/.vscode/**
