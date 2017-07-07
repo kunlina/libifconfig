@@ -7,6 +7,7 @@ createfreebsdtree:
 	cp src/* stage/freebsdsrc/lib/libifconfig/
 	cp Makefile.base stage/freebsdsrc/lib/libifconfig/Makefile
 	cp examples/* stage/freebsdsrc/examples/libifconfig/
+	rm stage/freebsdsrc/examples/libifconfig/Makefile
 prepbuildinbase:
 	svnlite up ~/data/fbsdhead
 	./tools/cptofbsdsrc.sh ./ ~/data/fbsdhead
