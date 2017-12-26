@@ -137,6 +137,7 @@ ifconfig_foreach_iface(ifconfig_handle_t *h,
 	}
 	/* Free ifaddrs so we don't accidentally cache stale data */
 	freeifaddrs(h->ifap);
+	h->ifap = NULL;
 
 	return (ret);
 }
