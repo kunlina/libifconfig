@@ -52,8 +52,9 @@ ifconfig_carp_get_info(ifconfig_handle_t *h, const char *name,
 	strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_data = (caddr_t)carpr;
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGVH, &ifr) != 0)
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGVH, &ifr) != 0) {
 		return (-1);
+	}
 
 	return (0);
 }

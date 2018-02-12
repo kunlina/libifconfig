@@ -220,9 +220,9 @@ print_nd6(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	struct in6_ndireq nd;
 
-	if (ifconfig_get_nd6(lifh, ifa->ifa_name, &nd) == 0)
+	if (ifconfig_get_nd6(lifh, ifa->ifa_name, &nd) == 0) {
 		printf("\tnd6 options=%x\n", nd.ndi.flags);
-	else
+	} else
 		err(1, "Failed to get nd6 options");
 }
 
@@ -231,9 +231,9 @@ print_fib(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 {
 	int fib;
 
-	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0)
+	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0) {
 		printf("\tfib: %d\n", fib);
-	else
+	} else
 		err(1, "Failed to get interface FIB");
 }
 
@@ -398,8 +398,10 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	} else
 		printf("\n");
 
-	if (ifmr->ifm_status & IFM_AVALID)
-		printf("\tstatus: %s\n", ifconfig_media_get_status(ifmr));
+	if (ifmr->ifm_status & IFM_AVALID) {
+		printf("\tstatus: %s\n",
+		    ifconfig_media_get_status(ifmr));
+	}
 
 	printf("\tsupported media:\n");
 	for (i=0; i < ifmr->ifm_count; i++) {
