@@ -1,7 +1,8 @@
+CFLAGS=-std=gnu99 -Wall -Wextra -Werror -fPIC -shared -Wmissing-variable-declarations
 default:
 	rm -Rf stage/libifconfig
 	mkdir -p stage/libifconfig
-	$(CC) -std=gnu99 -Wall -Wextra -Werror -fPIC -shared -o stage/libifconfig/libifconfig.so src/libifconfig.c src/libifconfig_internal.c
+	$(CC) $(CFLAGS) -o stage/libifconfig/libifconfig.so src/libifconfig.c src/libifconfig_internal.c src/libifconfig_media.c src/libifconfig_inet6.c src/libifconfig_inet.c src/libifconfig_carp.c src/libifconfig_lagg.c
 	cp src/libifconfig.h stage/libifconfig/
 clean:
 	rm -Rf stage

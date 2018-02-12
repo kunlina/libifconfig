@@ -36,10 +36,15 @@
 
 #include <net/if.h>
 #include <net/if_mib.h>
+#include <netinet/in.h>
+#include <netinet6/in6_var.h>
+#include <netinet6/nd6.h>
 
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <ifaddrs.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,6 +57,21 @@
 
 #define NOTAG    ((u_short) -1)
 
+static bool
+isnd6defif(ifconfig_handle_t *h, const char *name)
+{
+	struct in6_ndifreq ndifreq;
+	unsigned int ifindex;
+
+	memset(&ndifreq, 0, sizeof(ndifreq));
+	strlcpy(ndifreq.ifname, name, sizeof(ndifreq.ifname));
+	ifindex = if_nametoindex(ndifreq.ifname);
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGDEFIFACE_IN6, &ndifreq) < 0)
+		return (false);
+	h->error.errtype = OK;
+	return (ndifreq.ifindex == ifindex);
+}
+
 ifconfig_handle_t *
 ifconfig_open(void)
 {
@@ -59,12 +79,10 @@ ifconfig_open(void)
 
 	h = calloc(1, sizeof(*h));
 
-	if (h == NULL) {
+	if (h == NULL)
 		return (NULL);
-	}
-	for (int i = 0; i <= AF_MAX; i++) {
+	for (int i = 0; i <= AF_MAX; i++)
 		h->sockets[i] = -1;
-	}
 
 	return (h);
 }
@@ -74,10 +92,10 @@ ifconfig_close(ifconfig_handle_t *h)
 {
 
 	for (int i = 0; i <= AF_MAX; i++) {
-		if (h->sockets[i] != -1) {
+		if (h->sockets[i] != -1)
 			(void)close(h->sockets[i]);
-		}
 	}
+	freeifaddrs(h->ifap);
 	free(h);
 }
 
@@ -100,6 +118,45 @@ ifconfig_err_ioctlreq(ifconfig_handle_t *h)
 {
 
 	return (h->error.ioctl_request);
+}
+
+int
+ifconfig_foreach_iface(ifconfig_handle_t *h,
+    ifconfig_foreach_func_t cb, void *udata)
+{
+	int ret;
+
+	ret = ifconfig_getifaddrs(h);
+	if (ret == 0) {
+		struct ifaddrs *ifa;
+		char *ifname = NULL;
+
+		for (ifa = h->ifap; ifa; ifa=ifa->ifa_next) {
+			if (ifname !=ifa->ifa_name) {
+				ifname = ifa->ifa_name;
+				cb(h, ifa, udata);
+			}
+		}
+	}
+	/* Free ifaddrs so we don't accidentally cache stale data */
+	freeifaddrs(h->ifap);
+	h->ifap = NULL;
+
+	return (ret);
+}
+
+void
+ifconfig_foreach_ifaddr(ifconfig_handle_t *h, struct ifaddrs *ifa,
+    ifconfig_foreach_func_t cb, void *udata)
+{
+	struct ifaddrs *ift;
+
+	for (ift = ifa;
+	    ift != NULL
+	        && ift->ifa_addr != NULL
+		&& strcmp(ift->ifa_name, ifa->ifa_name) == 0;
+	    ift = ift->ifa_next)
+		cb(h, ift, udata);
 }
 
 int
@@ -168,9 +225,8 @@ ifconfig_set_description(ifconfig_handle_t *h, const char *name,
 	 * Unset description if the new description is 0 characters long.
 	 * TODO: Decide whether this should be an error condition instead.
 	 */
-	if (desclen == 0) {
+	if (desclen == 0)
 		return (ifconfig_unset_description(h, name));
-	}
 
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_buffer.length = desclen + 1;
@@ -201,9 +257,9 @@ ifconfig_unset_description(ifconfig_handle_t *h, const char *name)
 	ifr.ifr_buffer.length = 0;
 	ifr.ifr_buffer.buffer = NULL;
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFDESCR, &ifr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFDESCR, &ifr) < 0)
 		return (-1);
-	}
+
 	return (0);
 }
 
@@ -274,6 +330,21 @@ fail:
 }
 
 int
+ifconfig_get_fib(ifconfig_handle_t *h, const char *name, int *fib)
+{
+	struct ifreq ifr;
+
+	memset(&ifr, 0, sizeof(ifr));
+	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFFIB, &ifr) == -1)
+		return (-1);
+
+	*fib = ifr.ifr_fib;
+	return (0);
+}
+
+int
 ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu)
 {
 	struct ifreq ifr;
@@ -282,9 +353,8 @@ ifconfig_set_mtu(ifconfig_handle_t *h, const char *name, const int mtu)
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 	ifr.ifr_mtu = mtu;
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFMTU, &ifr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFMTU, &ifr) < 0)
 		return (-1);
-	}
 
 	return (0);
 }
@@ -297,26 +367,40 @@ ifconfig_get_mtu(ifconfig_handle_t *h, const char *name, int *mtu)
 	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFMTU, &ifr) == -1) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFMTU, &ifr) == -1)
 		return (-1);
-	}
 
 	*mtu = ifr.ifr_mtu;
 	return (0);
 }
 
 int
-ifconfig_set_metric(ifconfig_handle_t *h, const char *name, const int mtu)
+ifconfig_get_nd6(ifconfig_handle_t *h, const char *name,
+    struct in6_ndireq *nd)
+{
+	memset(nd, 0, sizeof(*nd));
+	strlcpy(nd->ifname, name, sizeof(nd->ifname));
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGIFINFO_IN6, nd) == -1)
+		return (-1);
+	if (isnd6defif(h, name))
+		nd->ndi.flags |= ND6_IFF_DEFAULTIF;
+	else if (h->error.errtype != OK)
+		return (-1);
+
+	return (0);
+}
+
+int
+ifconfig_set_metric(ifconfig_handle_t *h, const char *name, const int metric)
 {
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
-	ifr.ifr_mtu = mtu;
+	ifr.ifr_metric = metric;
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFMETRIC, &ifr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFMETRIC, &ifr) < 0)
 		return (-1);
-	}
 
 	return (0);
 }
@@ -329,9 +413,8 @@ ifconfig_get_metric(ifconfig_handle_t *h, const char *name, int *metric)
 	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFMETRIC, &ifr) == -1) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFMETRIC, &ifr) == -1)
 		return (-1);
-	}
 
 	*metric = ifr.ifr_metric;
 	return (0);
@@ -347,9 +430,8 @@ ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
 
 	memset(&ifr, 0, sizeof(ifr));
 
-	if (ifconfig_get_capability(h, name, &ifcap) != 0) {
+	if (ifconfig_get_capability(h, name, &ifcap) != 0)
 		return (-1);
-	}
 
 	value = capability;
 	flags = ifcap.curcap;
@@ -368,9 +450,9 @@ ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
 	 * set for this request.
 	 */
 	ifr.ifr_reqcap = flags;
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFCAP, &ifr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSIFCAP, &ifr) < 0)
 		return (-1);
-	}
+
 	return (0);
 }
 
@@ -383,12 +465,45 @@ ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
 	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFCAP, &ifr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFCAP, &ifr) < 0)
 		return (-1);
-	}
 	capability->curcap = ifr.ifr_curcap;
 	capability->reqcap = ifr.ifr_reqcap;
 	return (0);
+}
+
+int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
+    struct ifgroupreq *ifgr)
+{
+	int len;
+
+	memset(ifgr, 0, sizeof(*ifgr));
+	strlcpy(ifgr->ifgr_name, name, IFNAMSIZ);
+
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFGROUP, ifgr) == -1) {
+		if (h->error.errcode == EINVAL || h->error.errcode == ENOTTY)
+			return (0);
+		else
+			return (-1);
+	}
+
+	len = ifgr->ifgr_len;
+	ifgr->ifgr_groups = (struct ifg_req *)malloc(len);
+	if (ifgr->ifgr_groups == NULL)
+		return (1);
+	bzero(ifgr->ifgr_groups, len);
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFGROUP, ifgr) == -1)
+		return (-1);
+
+	return (0);
+}
+
+int
+ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
+    struct ifstat *ifs)
+{
+	strlcpy(ifs->ifs_name, name, sizeof(ifs->ifs_name));
+	return (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFSTATUS, ifs));
 }
 
 int
@@ -399,9 +514,9 @@ ifconfig_destroy_interface(ifconfig_handle_t *h, const char *name)
 	memset(&ifr, 0, sizeof(ifr));
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
 
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCIFDESTROY, &ifr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCIFDESTROY, &ifr) < 0)
 		return (-1);
-	}
+
 	return (0);
 }
 
@@ -431,9 +546,8 @@ ifconfig_create_interface(ifconfig_handle_t *h, const char *name, char **ifname)
 	}
 
 	/* No special handling for this interface type. */
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCIFCREATE2, &ifr) < 0) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCIFCREATE2, &ifr) < 0)
 		return (-1);
-	}
 
 	*ifname = strdup(ifr.ifr_name);
 	if (ifname == NULL) {
@@ -485,8 +599,8 @@ ifconfig_set_vlantag(ifconfig_handle_t *h, const char *name,
 
 	ifr.ifr_data = (caddr_t)&params;
 	(void)strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSETVLAN, &ifr) == -1) {
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCSETVLAN, &ifr) == -1)
 		return (-1);
-	}
+
 	return (0);
 }

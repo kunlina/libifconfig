@@ -31,6 +31,7 @@
 #include <net/if.h>
 
 #include <errno.h>
+#include <ifaddrs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -39,16 +40,27 @@
 #include "libifconfig_internal.h"
 
 int
+ifconfig_getifaddrs(ifconfig_handle_t *h)
+{
+	int ret;
+
+	if (h->ifap == NULL) {
+		ret = getifaddrs(&h->ifap);
+		return (ret);
+	} else
+		return (0);
+}
+
+int
 ifconfig_ioctlwrap(ifconfig_handle_t *h, const int addressfamily,
-    unsigned long request, struct ifreq *ifr)
+    unsigned long request, void *data)
 {
 	int s;
 
-	if (ifconfig_socket(h, addressfamily, &s) != 0) {
+	if (ifconfig_socket(h, addressfamily, &s) != 0)
 		return (-1);
-	}
 
-	if (ioctl(s, request, ifr) != 0) {
+	if (ioctl(s, request, data) != 0) {
 		h->error.errtype = IOCTL;
 		h->error.ioctl_request = request;
 		h->error.errcode = errno;
