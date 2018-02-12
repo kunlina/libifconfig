@@ -49,11 +49,12 @@ inet6_prefixlen(struct in6_addr *addr)
 	int prefixlen = 0;
 	int i;
 
-	for (i=0; i < 4; i++) {
+	for (i = 0; i < 4; i++) {
 		int x = ffs(ntohl(addr->__u6_addr.__u6_addr32[i]));
 		prefixlen += x == 0 ? 0 : 33 - x;
-		if (x != 1)
+		if (x != 1) {
 			break;
+		}
 	}
 	return (prefixlen);
 }
@@ -68,14 +69,15 @@ ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
 	bzero(addr, sizeof(*addr));
 
 	/* Set the address */
-	addr->sin6 = (struct sockaddr_in6*)ifa->ifa_addr;
+	addr->sin6 = (struct sockaddr_in6 *)ifa->ifa_addr;
 
 	/* Set the destination address */
-	if (ifa->ifa_flags & IFF_POINTOPOINT)
-		addr->dstin6 = (struct sockaddr_in6*)ifa->ifa_dstaddr;
+	if (ifa->ifa_flags & IFF_POINTOPOINT) {
+		addr->dstin6 = (struct sockaddr_in6 *)ifa->ifa_dstaddr;
+	}
 
 	/* Set the prefixlen */
-	netmask = (struct sockaddr_in6*)ifa->ifa_netmask;
+	netmask = (struct sockaddr_in6 *)ifa->ifa_netmask;
 	addr->prefixlen = inet6_prefixlen(&netmask->sin6_addr);
 
 	/* Set the flags */
@@ -95,8 +97,9 @@ ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
 	addr->lifetime = ifr6.ifr_ifru.ifru_lifetime; /* struct copy */
 
 	/* Set the vhid */
-	if (ifa->ifa_data && ifa->ifa_data)
-		addr->vhid = ((struct if_data*)ifa->ifa_data)->ifi_vhid;
+	if (ifa->ifa_data && ifa->ifa_data) {
+		addr->vhid = ((struct if_data *)ifa->ifa_data)->ifi_vhid;
+	}
 
 	return (0);
 }

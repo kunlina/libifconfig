@@ -59,11 +59,11 @@ static struct ifmedia_type_to_subtype *get_toptype_ttos(int);
 static struct ifmedia_description *get_subtype_desc(int,
     struct ifmedia_type_to_subtype *ttos);
 
-#define	IFM_OPMODE(x) \
-	((x) & (IFM_IEEE80211_ADHOC | IFM_IEEE80211_HOSTAP | \
-	 IFM_IEEE80211_IBSS | IFM_IEEE80211_WDS | IFM_IEEE80211_MONITOR | \
-	 IFM_IEEE80211_MBSS))
-#define	IFM_IEEE80211_STA	0
+#define IFM_OPMODE(x)							 \
+	((x) & (IFM_IEEE80211_ADHOC | IFM_IEEE80211_HOSTAP |		 \
+	IFM_IEEE80211_IBSS | IFM_IEEE80211_WDS | IFM_IEEE80211_MONITOR | \
+	IFM_IEEE80211_MBSS))
+#define IFM_IEEE80211_STA    0
 
 static struct ifmedia_description ifm_type_descriptions[] =
     IFM_TYPE_DESCRIPTIONS;
@@ -135,172 +135,186 @@ struct ifmedia_type_to_subtype {
 	struct {
 		struct ifmedia_description *desc;
 		int alias;
-	} subtypes[5];
+	}
+	subtypes[5];
 	struct {
 		struct ifmedia_description *desc;
 		int alias;
-	} options[4];
+	}
+	options[4];
 	struct {
 		struct ifmedia_description *desc;
 		int alias;
-	} modes[3];
+	}
+	modes[3];
 };
 
 /* must be in the same order as IFM_TYPE_DESCRIPTIONS */
-static struct ifmedia_type_to_subtype ifmedia_types_to_subtypes[] = {
+static struct ifmedia_type_to_subtype ifmedia_types_to_subtypes[] =
+{
 	{
 		{
-			{ &ifm_subtype_shared_descriptions[0], 0 },
-			{ &ifm_subtype_shared_aliases[0], 1 },
-			{ &ifm_subtype_ethernet_descriptions[0], 0 },
-			{ &ifm_subtype_ethernet_aliases[0], 1 },
-			{ NULL, 0 },
+			{ &ifm_subtype_shared_descriptions[0],		 0 },
+			{ &ifm_subtype_shared_aliases[0],		 1 },
+			{ &ifm_subtype_ethernet_descriptions[0],	 0 },
+			{ &ifm_subtype_ethernet_aliases[0],		 1 },
+			{ NULL,						 0 },
 		},
 		{
-			{ &ifm_shared_option_descriptions[0], 0 },
-			{ &ifm_shared_option_aliases[0], 1 },
-			{ &ifm_subtype_ethernet_option_descriptions[0], 0 },
-			{ NULL, 0 },
+			{ &ifm_shared_option_descriptions[0],		 0 },
+			{ &ifm_shared_option_aliases[0],		 1 },
+			{ &ifm_subtype_ethernet_option_descriptions[0],	 0 },
+			{ NULL,						 0 },
 		},
 		{
-			{ NULL, 0 },
+			{ NULL,						 0 },
 		},
 	},
 	{
 		{
-			{ &ifm_subtype_shared_descriptions[0], 0 },
-			{ &ifm_subtype_shared_aliases[0], 1 },
-			{ &ifm_subtype_tokenring_descriptions[0], 0 },
-			{ &ifm_subtype_tokenring_aliases[0], 1 },
-			{ NULL, 0 },
+			{ &ifm_subtype_shared_descriptions[0],		 0 },
+			{ &ifm_subtype_shared_aliases[0],		 1 },
+			{ &ifm_subtype_tokenring_descriptions[0],	 0 },
+			{ &ifm_subtype_tokenring_aliases[0],		 1 },
+			{ NULL,						 0 },
 		},
 		{
-			{ &ifm_shared_option_descriptions[0], 0 },
-			{ &ifm_shared_option_aliases[0], 1 },
+			{ &ifm_shared_option_descriptions[0],		 0 },
+			{ &ifm_shared_option_aliases[0],		 1 },
 			{ &ifm_subtype_tokenring_option_descriptions[0], 0 },
-			{ NULL, 0 },
+			{ NULL,						 0 },
 		},
 		{
-			{ NULL, 0 },
-		},
-	},
-	{
-		{
-			{ &ifm_subtype_shared_descriptions[0], 0 },
-			{ &ifm_subtype_shared_aliases[0], 1 },
-			{ &ifm_subtype_fddi_descriptions[0], 0 },
-			{ &ifm_subtype_fddi_aliases[0], 1 },
-			{ NULL, 0 },
-		},
-		{
-			{ &ifm_shared_option_descriptions[0], 0 },
-			{ &ifm_shared_option_aliases[0], 1 },
-			{ &ifm_subtype_fddi_option_descriptions[0], 0 },
-			{ NULL, 0 },
-		},
-		{
-			{ NULL, 0 },
+			{ NULL,						 0 },
 		},
 	},
 	{
 		{
-			{ &ifm_subtype_shared_descriptions[0], 0 },
-			{ &ifm_subtype_shared_aliases[0], 1 },
-			{ &ifm_subtype_ieee80211_descriptions[0], 0 },
-			{ &ifm_subtype_ieee80211_aliases[0], 1 },
-			{ NULL, 0 },
+			{ &ifm_subtype_shared_descriptions[0],		 0 },
+			{ &ifm_subtype_shared_aliases[0],		 1 },
+			{ &ifm_subtype_fddi_descriptions[0],		 0 },
+			{ &ifm_subtype_fddi_aliases[0],			 1 },
+			{ NULL,						 0 },
 		},
 		{
-			{ &ifm_shared_option_descriptions[0], 0 },
-			{ &ifm_shared_option_aliases[0], 1 },
+			{ &ifm_shared_option_descriptions[0],		 0 },
+			{ &ifm_shared_option_aliases[0],		 1 },
+			{ &ifm_subtype_fddi_option_descriptions[0],	 0 },
+			{ NULL,						 0 },
+		},
+		{
+			{ NULL,						 0 },
+		},
+	},
+	{
+		{
+			{ &ifm_subtype_shared_descriptions[0],		 0 },
+			{ &ifm_subtype_shared_aliases[0],		 1 },
+			{ &ifm_subtype_ieee80211_descriptions[0],	 0 },
+			{ &ifm_subtype_ieee80211_aliases[0],		 1 },
+			{ NULL,						 0 },
+		},
+		{
+			{ &ifm_shared_option_descriptions[0],		 0 },
+			{ &ifm_shared_option_aliases[0],		 1 },
 			{ &ifm_subtype_ieee80211_option_descriptions[0], 0 },
-			{ NULL, 0 },
+			{ NULL,						 0 },
 		},
 		{
-			{ &ifm_subtype_ieee80211_mode_descriptions[0], 0 },
-			{ &ifm_subtype_ieee80211_mode_aliases[0], 0 },
-			{ NULL, 0 },
+			{ &ifm_subtype_ieee80211_mode_descriptions[0],	 0 },
+			{ &ifm_subtype_ieee80211_mode_aliases[0],	 0 },
+			{ NULL,						 0 },
 		},
 	},
 	{
 		{
-			{ &ifm_subtype_shared_descriptions[0], 0 },
-			{ &ifm_subtype_shared_aliases[0], 1 },
-			{ &ifm_subtype_atm_descriptions[0], 0 },
-			{ &ifm_subtype_atm_aliases[0], 1 },
-			{ NULL, 0 },
+			{ &ifm_subtype_shared_descriptions[0],		 0 },
+			{ &ifm_subtype_shared_aliases[0],		 1 },
+			{ &ifm_subtype_atm_descriptions[0],		 0 },
+			{ &ifm_subtype_atm_aliases[0],			 1 },
+			{ NULL,						 0 },
 		},
 		{
-			{ &ifm_shared_option_descriptions[0], 0 },
-			{ &ifm_shared_option_aliases[0], 1 },
-			{ &ifm_subtype_atm_option_descriptions[0], 0 },
-			{ NULL, 0 },
+			{ &ifm_shared_option_descriptions[0],		 0 },
+			{ &ifm_shared_option_aliases[0],		 1 },
+			{ &ifm_subtype_atm_option_descriptions[0],	 0 },
+			{ NULL,						 0 },
 		},
 		{
-			{ NULL, 0 },
+			{ NULL,						 0 },
 		},
 	},
 };
 
-static struct ifmedia_description *get_toptype_desc(int ifmw)
+static struct ifmedia_description *
+get_toptype_desc(int ifmw)
 {
 	struct ifmedia_description *desc;
 
-	for (desc = ifm_type_descriptions; desc->ifmt_string != NULL; desc++)
-		if (IFM_TYPE(ifmw) == desc->ifmt_word)
+	for (desc = ifm_type_descriptions; desc->ifmt_string != NULL; desc++) {
+		if (IFM_TYPE(ifmw) == desc->ifmt_word) {
 			break;
+		}
+	}
 
-	return desc;
+	return (desc);
 }
 
-static struct ifmedia_type_to_subtype *get_toptype_ttos(int ifmw)
+static struct ifmedia_type_to_subtype *
+get_toptype_ttos(int ifmw)
 {
 	struct ifmedia_description *desc;
 	struct ifmedia_type_to_subtype *ttos;
 
 	for (desc = ifm_type_descriptions, ttos = ifmedia_types_to_subtypes;
-	    desc->ifmt_string != NULL; desc++, ttos++)
-		if (IFM_TYPE(ifmw) == desc->ifmt_word)
+	    desc->ifmt_string != NULL; desc++, ttos++) {
+		if (IFM_TYPE(ifmw) == desc->ifmt_word) {
 			break;
+		}
+	}
 
-	return ttos;
+	return (ttos);
 }
 
-static struct ifmedia_description *get_subtype_desc(int ifmw, 
+static struct ifmedia_description *
+get_subtype_desc(int ifmw,
     struct ifmedia_type_to_subtype *ttos)
 {
 	int i;
 	struct ifmedia_description *desc;
 
 	for (i = 0; ttos->subtypes[i].desc != NULL; i++) {
-		if (ttos->subtypes[i].alias)
+		if (ttos->subtypes[i].alias) {
 			continue;
+		}
 		for (desc = ttos->subtypes[i].desc;
 		    desc->ifmt_string != NULL; desc++) {
-			if (IFM_SUBTYPE(ifmw) == desc->ifmt_word)
-				return desc;
+			if (IFM_SUBTYPE(ifmw) == desc->ifmt_word) {
+				return (desc);
+			}
 		}
 	}
 
-	return NULL;
+	return (NULL);
 }
 
-const char*
+const char *
 ifconfig_media_get_type(int ifmw)
 {
 	struct ifmedia_description *desc;
+
 	/*int seen_option = 0, i;*/
 
 	/* Find the top-level interface type. */
 	desc = get_toptype_desc(ifmw);
 	if (desc->ifmt_string == NULL) {
-		return("<unknown type>");
+		return ("<unknown type>");
 	} else {
-		return(desc->ifmt_string);
+		return (desc->ifmt_string);
 	}
 }
 
-const char*
+const char *
 ifconfig_media_get_subtype(int ifmw)
 {
 	struct ifmedia_description *desc;
@@ -312,13 +326,13 @@ ifconfig_media_get_subtype(int ifmw)
 }
 
 /***************************************************************************
- * Above this point, this file is mostly copied from sbin/ifconfig/ifmedia.c
- ***************************************************************************/
+* Above this point, this file is mostly copied from sbin/ifconfig/ifmedia.c
+***************************************************************************/
 
 /* Internal structure used for allocations and frees */
 struct _ifconfig_media_status {
-	struct ifmediareq	ifmr;
-	int			medialist[0];
+	struct ifmediareq ifmr;
+	int medialist[0];
 };
 
 int
@@ -335,8 +349,8 @@ ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
 		h->error.errcode = ENOMEM;
 		return (-1);
 	}
-	(void) memset(ms, 0, sizeof(*ms));
-	(void) strlcpy(ms->ifmr.ifm_name, name, sizeof(ms->ifmr.ifm_name));
+	(void)memset(ms, 0, sizeof(*ms));
+	(void)strlcpy(ms->ifmr.ifm_name, name, sizeof(ms->ifmr.ifm_name));
 
 	/*
 	 * Check if interface supports extended media types.
@@ -352,7 +366,7 @@ ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
 	}
 	if (ms->ifmr.ifm_count == 0) {
 		*ifmr = &ms->ifmr;
-		return (0);	/* Interface has no media types ?*/
+		return (0);     /* Interface has no media types ?*/
 	}
 
 	ms2 = realloc(ms, sizeof(*ms) + sizeof(int) * ms->ifmr.ifm_count);
@@ -373,35 +387,39 @@ ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
 	return (0);
 }
 
-const char*
+const char *
 ifconfig_media_get_status(const struct ifmediareq *ifmr)
 {
 	switch (IFM_TYPE(ifmr->ifm_active)) {
 	case IFM_ETHER:
 	case IFM_ATM:
-		if (ifmr->ifm_status & IFM_ACTIVE)
+		if (ifmr->ifm_status & IFM_ACTIVE) {
 			return ("active");
-		else
+		} else {
 			return ("no carrier");
+		}
 		break;
 
 	case IFM_FDDI:
 	case IFM_TOKEN:
-		if (ifmr->ifm_status & IFM_ACTIVE)
+		if (ifmr->ifm_status & IFM_ACTIVE) {
 			return ("inserted");
-		else
+		} else {
 			return ("no ring");
+		}
 		break;
 
 	case IFM_IEEE80211:
 		if (ifmr->ifm_status & IFM_ACTIVE) {
 			/* NB: only sta mode associates */
-			if (IFM_OPMODE(ifmr->ifm_active) == IFM_IEEE80211_STA)
+			if (IFM_OPMODE(ifmr->ifm_active) == IFM_IEEE80211_STA) {
 				return ("associated");
-			else
+			} else {
 				return ("running");
-		} else
+			}
+		} else {
 			return ("no carrier");
+		}
 		break;
 	default:
 		return ("");
@@ -420,13 +438,15 @@ ifconfig_media_get_options_string(int ifmw, char *buf, size_t buflen)
 	buf[0] = '\0';
 	ttos = get_toptype_ttos(ifmw);
 	for (i = 0; ttos->options[i].desc != NULL; i++) {
-		if (ttos->options[i].alias)
+		if (ttos->options[i].alias) {
 			continue;
+		}
 		for (desc = ttos->options[i].desc;
 		    desc->ifmt_string != NULL; desc++) {
 			if (ifmw & desc->ifmt_word) {
-				if (seen_option++)
+				if (seen_option++) {
 					strlcat(buf, ",", buflen);
+				}
 				len = strlcat(buf, desc->ifmt_string, buflen);
 				assert(len < buflen);
 				buf += len;

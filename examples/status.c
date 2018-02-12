@@ -60,9 +60,9 @@ print_carp(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	struct carpreq carpr[CARP_MAXVHID];
 	int i;
 
-	if (ifconfig_carp_get_info(lifh, ifa->ifa_name, carpr, CARP_MAXVHID))
-		return;	/* Probably not configured on this interface */
-
+	if (ifconfig_carp_get_info(lifh, ifa->ifa_name, carpr, CARP_MAXVHID)) {
+		return; /* Probably not configured on this interface */
+	}
 	for (i = 0; i < carpr[0].carpr_count; i++) {
 		printf("\tcarp: %s vhid %d advbase %d advskew %d",
 		    carp_states[carpr[i].carpr_state], carpr[i].carpr_vhid,
@@ -77,22 +77,27 @@ print_inet4_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	struct ifconfig_inet_addr addr;
 	char addr_buf[NI_MAXHOST];
 
-	if (ifconfig_inet_get_addrinfo(lifh, ifa->ifa_name, ifa, &addr) != 0)
+	if (ifconfig_inet_get_addrinfo(lifh, ifa->ifa_name, ifa, &addr) != 0) {
 		return;
+	}
 
 	inet_ntop(AF_INET, &addr.sin->sin_addr, addr_buf, sizeof(addr_buf));
 	printf("\tinet %s", addr_buf);
 
-	if (addr.dst)
+	if (addr.dst) {
 		printf(" --> %s", inet_ntoa(addr.dst->sin_addr));
+	}
 
 	printf(" netmask 0x%x ", ntohl(addr.netmask->sin_addr.s_addr));
 
-	if (addr.broadcast != NULL && addr.broadcast->sin_addr.s_addr != 0)
+	if ((addr.broadcast != NULL) &&
+	    (addr.broadcast->sin_addr.s_addr != 0)) {
 		printf("broadcast %s ", inet_ntoa(addr.broadcast->sin_addr));
+	}
 
-	if (addr.vhid != 0)
+	if (addr.vhid != 0) {
 		printf("vhid %d ", addr.vhid);
+	}
 	printf("\n");
 }
 
@@ -104,12 +109,14 @@ print_inet6_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	struct timespec now;
 
 	/* Print the address */
-	if (ifconfig_inet6_get_addrinfo(lifh, ifa->ifa_name, ifa, &addr) != 0)
+	if (ifconfig_inet6_get_addrinfo(lifh, ifa->ifa_name, ifa, &addr) != 0) {
 		err(1, "ifconfig_inet6_get_addrinfo");
-	if (0 != getnameinfo((struct sockaddr*)addr.sin6, addr.sin6->sin6_len,
-	    addr_buf, sizeof(addr_buf), NULL, 0, NI_NUMERICHOST))
+	}
+	if (0 != getnameinfo((struct sockaddr *)addr.sin6, addr.sin6->sin6_len,
+	    addr_buf, sizeof(addr_buf), NULL, 0, NI_NUMERICHOST)) {
 		inet_ntop(AF_INET6, &addr.sin6->sin6_addr, addr_buf,
 		    sizeof(addr_buf));
+	}
 	printf("\tinet6 %s", addr_buf);
 
 	if (addr.dstin6) {
@@ -121,26 +128,35 @@ print_inet6_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	printf(" prefixlen %d ", addr.prefixlen);
 
 	/* Print the scopeid*/
-	if (addr.sin6->sin6_scope_id)
+	if (addr.sin6->sin6_scope_id) {
 		printf("scopeid 0x%x ", addr.sin6->sin6_scope_id);
+	}
 
 	/* Print the flags */
-	if ((addr.flags & IN6_IFF_ANYCAST) != 0)
+	if ((addr.flags & IN6_IFF_ANYCAST) != 0) {
 		printf("anycast ");
-	if ((addr.flags & IN6_IFF_TENTATIVE) != 0)
+	}
+	if ((addr.flags & IN6_IFF_TENTATIVE) != 0) {
 		printf("tentative ");
-	if ((addr.flags & IN6_IFF_DUPLICATED) != 0)
+	}
+	if ((addr.flags & IN6_IFF_DUPLICATED) != 0) {
 		printf("duplicated ");
-	if ((addr.flags & IN6_IFF_DETACHED) != 0)
+	}
+	if ((addr.flags & IN6_IFF_DETACHED) != 0) {
 		printf("detached ");
-	if ((addr.flags & IN6_IFF_DEPRECATED) != 0)
+	}
+	if ((addr.flags & IN6_IFF_DEPRECATED) != 0) {
 		printf("deprecated ");
-	if ((addr.flags & IN6_IFF_AUTOCONF) != 0)
+	}
+	if ((addr.flags & IN6_IFF_AUTOCONF) != 0) {
 		printf("autoconf ");
-	if ((addr.flags & IN6_IFF_TEMPORARY) != 0)
+	}
+	if ((addr.flags & IN6_IFF_TEMPORARY) != 0) {
 		printf("temporary ");
-	if ((addr.flags & IN6_IFF_PREFER_SOURCE) != 0)
+	}
+	if ((addr.flags & IN6_IFF_PREFER_SOURCE) != 0) {
 		printf("prefer_source ");
+	}
 
 	/* Print the lifetimes */
 	clock_gettime(CLOCK_MONOTONIC_FAST, &now);
@@ -149,20 +165,23 @@ print_inet6_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		if (addr.lifetime.ia6t_preferred) {
 			printf("%ld ", MAX(0l,
 			    addr.lifetime.ia6t_preferred - now.tv_sec));
-		} else
+		} else {
 			printf("infty ");
+		}
 
 		printf("vltime ");
 		if (addr.lifetime.ia6t_expire) {
 			printf("%ld ", MAX(0l,
 			    addr.lifetime.ia6t_expire - now.tv_sec));
-		} else
+		} else {
 			printf("infty ");
+		}
 	}
 
 	/* Print the vhid */
-	if (addr.vhid != 0)
+	if (addr.vhid != 0) {
 		printf("vhid %d ", addr.vhid);
+	}
 	printf("\n");
 }
 
@@ -173,13 +192,14 @@ print_link_addr(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	struct sockaddr_dl *sdl;
 	int n;
 
-	sdl = (struct sockaddr_dl*) ifa->ifa_addr;
-	if (sdl != NULL && sdl->sdl_alen > 0) {
-		if ((sdl->sdl_type == IFT_ETHER ||
-		    sdl->sdl_type == IFT_L2VLAN ||
-		    sdl->sdl_type == IFT_BRIDGE) &&
-		    sdl->sdl_alen == ETHER_ADDR_LEN) {
-			ether_ntoa_r((struct ether_addr *)LLADDR(sdl), addr_buf);
+	sdl = (struct sockaddr_dl *)ifa->ifa_addr;
+	if ((sdl != NULL) && (sdl->sdl_alen > 0)) {
+		if (((sdl->sdl_type == IFT_ETHER) ||
+		    (sdl->sdl_type == IFT_L2VLAN) ||
+		    (sdl->sdl_type == IFT_BRIDGE)) &&
+		    (sdl->sdl_alen == ETHER_ADDR_LEN)) {
+			ether_ntoa_r((struct ether_addr *)LLADDR(sdl),
+			    addr_buf);
 			printf("\tether %s\n", addr_buf);
 		} else {
 			n = sdl->sdl_nlen > 0 ? sdl->sdl_nlen + 1 : 0;
@@ -197,6 +217,7 @@ print_ifaddr(ifconfig_handle_t *lifh, struct ifaddrs *ifa, void *udata __unused)
 		print_inet4_addr(lifh, ifa);
 		break;
 	case AF_INET6:
+
 		/*
 		 * printing AF_INET6 status requires calling SIOCGIFAFLAG_IN6
 		 * and SIOCGIFALIFETIME_IN6.  TODO: figure out the best way to
@@ -222,8 +243,9 @@ print_nd6(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 
 	if (ifconfig_get_nd6(lifh, ifa->ifa_name, &nd) == 0) {
 		printf("\tnd6 options=%x\n", nd.ndi.flags);
-	} else
+	} else {
 		err(1, "Failed to get nd6 options");
+	}
 }
 
 static void
@@ -233,8 +255,9 @@ print_fib(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 
 	if (ifconfig_get_fib(lifh, ifa->ifa_name, &fib) == 0) {
 		printf("\tfib: %d\n", fib);
-	} else
+	} else {
 		err(1, "Failed to get interface FIB");
+	}
 }
 
 static void
@@ -247,8 +270,9 @@ print_lagg(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	int i;
 
 	if (ifconfig_lagg_get_lagg_status(lifh, ifa->ifa_name, &ls) < 0) {
-		if (ifconfig_err_errno(lifh) == EINVAL)
+		if (ifconfig_err_errno(lifh) == EINVAL) {
 			return;
+		}
 		err(1, "Failed to get interface lagg status");
 	}
 
@@ -284,8 +308,9 @@ print_lagg(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	printf("\t\tflags=%x", ls->ro->ro_opts);
 	putchar('\n');
 	printf("\t\tflowid_shift: %d\n", ls->ro->ro_flowid_shift);
-	if (ls->ra->ra_proto == LAGG_PROTO_ROUNDROBIN)
+	if (ls->ra->ra_proto == LAGG_PROTO_ROUNDROBIN) {
 		printf("\t\trr_limit: %d\n", ls->ro->ro_bkt);
+	}
 	printf("\tlagg statistics:\n");
 	printf("\t\tactive ports: %d\n", ls->ro->ro_active);
 	printf("\t\tflapping: %u\n", ls->ro->ro_flapping);
@@ -293,8 +318,9 @@ print_lagg(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		lp = (struct lacp_opreq *)&ls->ra->ra_port[i].rp_lacpreq;
 		printf("\tlaggport: %s ", ls->ra->ra_port[i].rp_portname);
 		printf("flags=%x", ls->ra->ra_port[i].rp_flags);
-		if (ls->ra->ra_proto == LAGG_PROTO_LACP)
+		if (ls->ra->ra_proto == LAGG_PROTO_LACP) {
 			printf(" state=%x", lp->actor_state);
+		}
 		putchar('\n');
 	}
 
@@ -308,11 +334,12 @@ print_laggport(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	struct lagg_reqport rp;
 
 	if (ifconfig_lagg_get_laggport_status(lifh, ifa->ifa_name, &rp) < 0) {
-		if (ifconfig_err_errno(lifh) == EINVAL ||
-		    ifconfig_err_errno(lifh) == ENOENT)
+		if ((ifconfig_err_errno(lifh) == EINVAL) ||
+		    (ifconfig_err_errno(lifh) == ENOENT)) {
 			return;
-		else
+		} else {
 			err(1, "Failed to get lagg port status");
+		}
 	}
 
 	printf("\tlaggdev: %s\n", rp.rp_ifname);
@@ -326,22 +353,25 @@ print_groups(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	int len;
 	int cnt = 0;
 
-	if (ifconfig_get_groups(lifh, ifa->ifa_name, &ifgr) != 0)
+	if (ifconfig_get_groups(lifh, ifa->ifa_name, &ifgr) != 0) {
 		err(1, "Failed to get groups");
+	}
 
 	ifg = ifgr.ifgr_groups;
 	len = ifgr.ifgr_len;
 	for (; ifg && len >= sizeof(struct ifg_req); ifg++) {
 		len -= sizeof(struct ifg_req);
 		if (strcmp(ifg->ifgrq_group, "all")) {
-			if (cnt == 0)
+			if (cnt == 0) {
 				printf("\tgroups: ");
+			}
 			cnt++;
 			printf("%s ", ifg->ifgrq_group);
 		}
 	}
-	if (cnt)
+	if (cnt) {
 		printf("\n");
+	}
 
 	free(ifgr.ifgr_groups);
 }
@@ -379,10 +409,11 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	char opts[80];
 
 	if (ifconfig_media_get_mediareq(lifh, ifa->ifa_name, &ifmr) != 0) {
-		if (ifconfig_err_errtype(lifh) != OK)
+		if (ifconfig_err_errtype(lifh) != OK) {
 			err(1, "Failed to get media info");
-		else
-			return;	/* Interface doesn't support media info */
+		} else {
+			return; /* Interface doesn't support media info */
+		}
 	}
 
 	printf("\tmedia: %s %s", ifconfig_media_get_type(ifmr->ifm_current),
@@ -391,12 +422,14 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 		printf(" (%s", ifconfig_media_get_subtype(ifmr->ifm_active));
 		ifconfig_media_get_options_string(ifmr->ifm_active, opts,
 		    sizeof(opts));
-		if (opts[0] != '\0')
+		if (opts[0] != '\0') {
 			printf(" <%s>)\n", opts);
-		else
+		} else {
 			printf(")\n");
-	} else
+		}
+	} else {
 		printf("\n");
+	}
 
 	if (ifmr->ifm_status & IFM_AVALID) {
 		printf("\tstatus: %s\n",
@@ -404,15 +437,16 @@ print_media(ifconfig_handle_t *lifh, struct ifaddrs *ifa)
 	}
 
 	printf("\tsupported media:\n");
-	for (i=0; i < ifmr->ifm_count; i++) {
+	for (i = 0; i < ifmr->ifm_count; i++) {
 		printf("\t\tmedia %s",
 		    ifconfig_media_get_subtype(ifmr->ifm_ulist[i]));
 		ifconfig_media_get_options_string(ifmr->ifm_ulist[i], opts,
 		    sizeof(opts));
-		if (opts[0] != '\0')
+		if (opts[0] != '\0') {
 			printf(" mediaopt %s\n", opts);
-		else
+		} else {
 			printf("\n");
+		}
 	}
 	free(ifmr);
 }
@@ -427,26 +461,32 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa, void *udata __unused)
 
 	printf("%s: flags=%x ", ifa->ifa_name, ifa->ifa_flags);
 
-	if (ifconfig_get_metric(lifh, ifa->ifa_name, &metric) == 0)
+	if (ifconfig_get_metric(lifh, ifa->ifa_name, &metric) == 0) {
 		printf("metric %d ", metric);
-	else
+	} else {
 		err(1, "Failed to get interface metric");
+	}
 
-	if (ifconfig_get_mtu(lifh, ifa->ifa_name, &mtu) == 0)
+	if (ifconfig_get_mtu(lifh, ifa->ifa_name, &mtu) == 0) {
 		printf("mtu %d\n", mtu);
-	else
+	} else {
 		err(1, "Failed to get interface MTU");
+	}
 
-	if (ifconfig_get_description(lifh, ifa->ifa_name, &description) == 0)
+	if (ifconfig_get_description(lifh, ifa->ifa_name, &description) == 0) {
 		printf("\tdescription: %s\n", description);
+	}
 
 	if (ifconfig_get_capability(lifh, ifa->ifa_name, &caps) == 0) {
-		if (caps.curcap != 0)
+		if (caps.curcap != 0) {
 			printf("\toptions=%x\n", caps.curcap);
-		if (caps.reqcap != 0)
+		}
+		if (caps.reqcap != 0) {
 			printf("\tcapabilities=%x\n", caps.reqcap);
-	} else
+		}
+	} else {
 		err(1, "Failed to get interface capabilities");
+	}
 
 	ifconfig_foreach_ifaddr(lifh, ifa, print_ifaddr, NULL);
 
@@ -459,8 +499,9 @@ print_iface(ifconfig_handle_t *lifh, struct ifaddrs *ifa, void *udata __unused)
 	print_lagg(lifh, ifa);
 	print_laggport(lifh, ifa);
 
-	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0)
+	if (ifconfig_get_ifstatus(lifh, ifa->ifa_name, &ifs) == 0) {
 		printf("%s", ifs.ascii);
+	}
 
 	free(description);
 }
@@ -470,15 +511,18 @@ main(int argc, char *argv[])
 {
 	ifconfig_handle_t *lifh;
 
-	if (argc != 1)
+	if (argc != 1) {
 		errx(1, "Usage: example_status");
+	}
 
 	lifh = ifconfig_open();
-	if (lifh == NULL)
+	if (lifh == NULL) {
 		errx(1, "Failed to open libifconfig handle.");
+	}
 
-	if (ifconfig_foreach_iface(lifh, print_iface, NULL) != 0)
+	if (ifconfig_foreach_iface(lifh, print_iface, NULL) != 0) {
 		err(1, "Failed to get interfaces");
+	}
 
 	ifconfig_close(lifh);
 	lifh = NULL;

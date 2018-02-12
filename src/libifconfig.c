@@ -66,8 +66,9 @@ isnd6defif(ifconfig_handle_t *h, const char *name)
 	memset(&ndifreq, 0, sizeof(ndifreq));
 	strlcpy(ndifreq.ifname, name, sizeof(ndifreq.ifname));
 	ifindex = if_nametoindex(ndifreq.ifname);
-	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGDEFIFACE_IN6, &ndifreq) < 0)
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGDEFIFACE_IN6, &ndifreq) < 0) {
 		return (false);
+	}
 	h->error.errtype = OK;
 	return (ndifreq.ifindex == ifindex);
 }
@@ -134,8 +135,8 @@ ifconfig_foreach_iface(ifconfig_handle_t *h,
 		struct ifaddrs *ifa;
 		char *ifname = NULL;
 
-		for (ifa = h->ifap; ifa; ifa=ifa->ifa_next) {
-			if (ifname !=ifa->ifa_name) {
+		for (ifa = h->ifap; ifa; ifa = ifa->ifa_next) {
+			if (ifname != ifa->ifa_name) {
 				ifname = ifa->ifa_name;
 				cb(h, ifa, udata);
 			}
@@ -155,9 +156,9 @@ ifconfig_foreach_ifaddr(ifconfig_handle_t *h, struct ifaddrs *ifa,
 	struct ifaddrs *ift;
 
 	for (ift = ifa;
-	    ift != NULL
-	        && ift->ifa_addr != NULL
-		&& strcmp(ift->ifa_name, ifa->ifa_name) == 0;
+	    ift != NULL &&
+	    ift->ifa_addr != NULL &&
+	    strcmp(ift->ifa_name, ifa->ifa_name) == 0;
 	    ift = ift->ifa_next) {
 		cb(h, ift, udata);
 	}
@@ -302,8 +303,9 @@ ifconfig_get_orig_name(ifconfig_handle_t *h, const char *ifname,
 	int name[6];
 
 	ifindex = if_nametoindex(ifname);
-	if (ifindex == 0)
+	if (ifindex == 0) {
 		goto fail;
+	}
 
 	name[0] = CTL_NET;
 	name[1] = PF_LINK;
@@ -313,12 +315,14 @@ ifconfig_get_orig_name(ifconfig_handle_t *h, const char *ifname,
 	name[5] = IFDATA_DRIVERNAME;
 
 	len = 0;
-	if (sysctl(name, 6, NULL, &len, 0, 0) < 0)
+	if (sysctl(name, 6, NULL, &len, 0, 0) < 0) {
 		goto fail;
+	}
 
 	*orig_name = malloc(len);
-	if (*orig_name == NULL)
+	if (*orig_name == NULL) {
 		goto fail;
+	}
 
 	if (sysctl(name, 6, *orig_name, &len, 0, 0) < 0) {
 		free(*orig_name);
@@ -388,12 +392,14 @@ ifconfig_get_nd6(ifconfig_handle_t *h, const char *name,
 {
 	memset(nd, 0, sizeof(*nd));
 	strlcpy(nd->ifname, name, sizeof(nd->ifname));
-	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGIFINFO_IN6, nd) == -1)
+	if (ifconfig_ioctlwrap(h, AF_INET6, SIOCGIFINFO_IN6, nd) == -1) {
 		return (-1);
-	if (isnd6defif(h, name))
+	}
+	if (isnd6defif(h, name)) {
 		nd->ndi.flags |= ND6_IFF_DEFAULTIF;
-	else if (h->error.errtype != OK)
+	} else if (h->error.errtype != OK) {
 		return (-1);
+	}
 
 	return (0);
 }
@@ -484,7 +490,8 @@ ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
 	return (0);
 }
 
-int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
+int
+ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
     struct ifgroupreq *ifgr)
 {
 	int len;
@@ -493,19 +500,23 @@ int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
 	strlcpy(ifgr->ifgr_name, name, IFNAMSIZ);
 
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFGROUP, ifgr) == -1) {
-		if (h->error.errcode == EINVAL || h->error.errcode == ENOTTY)
+		if ((h->error.errcode == EINVAL) ||
+		    (h->error.errcode == ENOTTY)) {
 			return (0);
-		else
+		} else {
 			return (-1);
+		}
 	}
 
 	len = ifgr->ifgr_len;
 	ifgr->ifgr_groups = (struct ifg_req *)malloc(len);
-	if (ifgr->ifgr_groups == NULL)
+	if (ifgr->ifgr_groups == NULL) {
 		return (1);
+	}
 	bzero(ifgr->ifgr_groups, len);
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFGROUP, ifgr) == -1)
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGIFGROUP, ifgr) == -1) {
 		return (-1);
+	}
 
 	return (0);
 }

@@ -46,10 +46,10 @@
 
 /* Internal structure used for allocations and frees */
 struct _ifconfig_lagg_status {
-	struct ifconfig_lagg_status l;	/* Must be first */
+	struct ifconfig_lagg_status l;  /* Must be first */
 	struct lagg_reqall ra;
 	struct lagg_reqopts ro;
-	struct lagg_reqflags rf;		
+	struct lagg_reqflags rf;
 	struct lagg_reqport rpbuf[LAGG_MAX_PORTS];
 };
 
@@ -87,8 +87,9 @@ ifconfig_lagg_get_lagg_status(ifconfig_handle_t *h,
 	ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGLAGGOPTS, &ls->ro);
 
 	strlcpy(ls->rf.rf_ifname, name, sizeof(ls->rf.rf_ifname));
-	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGLAGGFLAGS, &ls->rf) != 0)
+	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGLAGGFLAGS, &ls->rf) != 0) {
 		ls->rf.rf_flags = 0;
+	}
 
 	strlcpy(ls->ra.ra_ifname, name, sizeof(ls->ra.ra_ifname));
 	if (ifconfig_ioctlwrap(h, AF_LOCAL, SIOCGLAGG, &ls->ra) != 0) {

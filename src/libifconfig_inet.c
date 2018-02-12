@@ -48,7 +48,7 @@ static int
 inet_prefixlen(const struct in_addr *addr)
 {
 	int x;
-	
+
 	x = ffs(ntohl(addr->s_addr));
 	return (x == 0 ? 0 : 33 - x);
 }
@@ -61,33 +61,38 @@ ifconfig_inet_get_addrinfo(ifconfig_handle_t *h __unused,
 	bzero(addr, sizeof(*addr));
 
 	/* Set the address */
-	if (ifa->ifa_addr == NULL)
+	if (ifa->ifa_addr == NULL) {
 		return (-1);
-	else
-		addr->sin = (struct sockaddr_in*)ifa->ifa_addr;
+	} else {
+		addr->sin = (struct sockaddr_in *)ifa->ifa_addr;
+	}
 
 	/* Set the destination address */
 	if (ifa->ifa_flags & IFF_POINTOPOINT) {
-		if (ifa->ifa_dstaddr)
-			addr->dst = (struct sockaddr_in*)ifa->ifa_dstaddr;
-		else
+		if (ifa->ifa_dstaddr) {
+			addr->dst = (struct sockaddr_in *)ifa->ifa_dstaddr;
+		} else {
 			addr->dst = &NULL_SIN;
+		}
 	}
 
 	/* Set the netmask and prefixlen */
-	if (ifa->ifa_netmask)
-		addr->netmask = (struct sockaddr_in*)ifa->ifa_netmask;
-	else
+	if (ifa->ifa_netmask) {
+		addr->netmask = (struct sockaddr_in *)ifa->ifa_netmask;
+	} else {
 		addr->netmask = &NULL_SIN;
+	}
 	addr->prefixlen = inet_prefixlen(&addr->netmask->sin_addr);
 
 	/* Set the broadcast */
-	if (ifa->ifa_flags & IFF_BROADCAST)
-		addr->broadcast = (struct sockaddr_in*)ifa->ifa_broadaddr;
+	if (ifa->ifa_flags & IFF_BROADCAST) {
+		addr->broadcast = (struct sockaddr_in *)ifa->ifa_broadaddr;
+	}
 
 	/* Set the vhid */
-	if (ifa->ifa_data)
-		addr->vhid = ((struct if_data*)ifa->ifa_data)->ifi_vhid;
+	if (ifa->ifa_data) {
+		addr->vhid = ((struct if_data *)ifa->ifa_data)->ifi_vhid;
+	}
 
 	return (0);
 }

@@ -31,7 +31,7 @@
 #include <netinet/in.h>
 #include <netinet6/in6_var.h>
 
-#define ND6_IFF_DEFAULTIF	0x8000
+#define ND6_IFF_DEFAULTIF    0x8000
 
 typedef enum {
 	OK = 0,
@@ -64,22 +64,22 @@ struct ifconfig_capabilities {
 
 /** Stores extra info associated with an inet address */
 struct ifconfig_inet_addr {
-	const struct sockaddr_in	*sin;
-	const struct sockaddr_in	*netmask;
-	const struct sockaddr_in	*dst;
-	const struct sockaddr_in	*broadcast;
-	int				prefixlen;
-	uint8_t				vhid;
+	const struct sockaddr_in *sin;
+	const struct sockaddr_in *netmask;
+	const struct sockaddr_in *dst;
+	const struct sockaddr_in *broadcast;
+	int prefixlen;
+	uint8_t vhid;
 };
 
 /** Stores extra info associated with an inet6 address */
 struct ifconfig_inet6_addr {
-	struct sockaddr_in6	*sin6;
-	struct sockaddr_in6	*dstin6;
-	struct in6_addrlifetime	lifetime;
-	int			prefixlen;
-	uint32_t		flags;
-	uint8_t			vhid;
+	struct sockaddr_in6 *sin6;
+	struct sockaddr_in6 *dstin6;
+	struct in6_addrlifetime lifetime;
+	int prefixlen;
+	uint32_t flags;
+	uint8_t vhid;
 };
 
 /** Stores extra info associated with a lagg(4) interface */
@@ -135,7 +135,7 @@ int ifconfig_foreach_iface(ifconfig_handle_t *h, ifconfig_foreach_func_t cb,
 /** Iterate over every address on a single network interface
  * @param h	An open ifconfig state object
  * @param ifa	A pointer that was supplied by a previous call to
- * 		ifconfig_foreach_iface
+ *              ifconfig_foreach_iface
  * @param udata	An opaque value that will be passed to the callback.
  * @param cb	A callback function to call with a pointer to each ifaddr
  */
@@ -166,11 +166,12 @@ int ifconfig_set_capability(ifconfig_handle_t *h, const char *name,
     const int capability);
 int ifconfig_get_capability(ifconfig_handle_t *h, const char *name,
     struct ifconfig_capabilities *capability);
+
 /** Retrieve the list of groups to which this interface belongs
  * @param h	An open ifconfig state object
  * @param name	The interface name
  * @param ifgr	return argument.  The caller is responsible for freeing
- * 		ifgr->ifgr_groups
+ *              ifgr->ifgr_groups
  * @return	0 on success, nonzero on failure
  */
 int ifconfig_get_groups(ifconfig_handle_t *h, const char *name,
@@ -186,9 +187,9 @@ int ifconfig_get_ifstatus(ifconfig_handle_t *h, const char *name,
  */
 int ifconfig_media_get_mediareq(ifconfig_handle_t *h, const char *name,
     struct ifmediareq **ifmr);
-const char* ifconfig_media_get_type(int ifmw);
-const char* ifconfig_media_get_subtype(int ifmw);
-const char* ifconfig_media_get_status(const struct ifmediareq *ifmr);
+const char *ifconfig_media_get_type(int ifmw);
+const char *ifconfig_media_get_subtype(int ifmw);
+const char *ifconfig_media_get_status(const struct ifmediareq *ifmr);
 void ifconfig_media_get_options_string(int ifmw, char *buf, size_t buflen);
 
 int ifconfig_carp_get_info(ifconfig_handle_t *h, const char *name,
@@ -199,7 +200,7 @@ int ifconfig_carp_get_info(ifconfig_handle_t *h, const char *name,
  * @param name	The interface name
  * @param ifa	Pointer to the the address structure of interest
  * @param addr	Return argument.  It will be filled with additional information
- * 		about the address.
+ *              about the address.
  * @return	0 on success, nonzero on failure.
  */
 int ifconfig_inet_get_addrinfo(ifconfig_handle_t *h,
@@ -210,7 +211,7 @@ int ifconfig_inet_get_addrinfo(ifconfig_handle_t *h,
  * @param name	The interface name
  * @param ifa	Pointer to the the address structure of interest
  * @param addr	Return argument.  It will be filled with additional information
- * 		about the address.
+ *              about the address.
  * @return	0 on success, nonzero on failure.
  */
 int ifconfig_inet6_get_addrinfo(ifconfig_handle_t *h,
