@@ -7,7 +7,7 @@ __Is it ready for production use?__
 
 Absolutely not. There are currently no releases of this library, and the API may change at any time.
 
-__I want to break stuff. How do I use libifc?__
+__I want to break stuff. How do I use libifconfig?__
 
 Please see the [examples directory](examples/) for some simple programs using libifconfig.
 
