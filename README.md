@@ -1,5 +1,4 @@
 # libifconfig 
-[![build status](https://gitlab.com/Savagedlight/libifconfig/badges/master/build.svg)](https://gitlab.com/Savagedlight/libifconfig/commits/master)
 
 A C API to do most things done by the FreeBSD 'ifconfig' program today. The primary goal is to reduce code duplication and empower third-party applications. It is hoped the API will be simple enough that interacting with the network configuration becomes trivial.
 
@@ -8,7 +7,7 @@ __Is it ready for production use?__
 
 Absolutely not. There are currently no releases of this library, and the API may change at any time.
 
-__I want to break stuff. How do I use libifc?__
+__I want to break stuff. How do I use libifconfig?__
 
 Please see the [examples directory](examples/) for some simple programs using libifconfig.
 
